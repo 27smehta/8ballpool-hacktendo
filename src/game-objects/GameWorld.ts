@@ -13,7 +13,6 @@ import { State } from './State';
 
 export class GameWorld {
 
-
     _stick: Stick;
     _cueBall: Ball;
     _8Ball: Ball;
@@ -26,7 +25,6 @@ export class GameWorld {
     _turnState: State;
     _referee: Referee;
 
-
     private get currentPlayer(): Player {
         return this._players[this._currentPlayerIndex];
     }
@@ -35,11 +33,9 @@ export class GameWorld {
         return this._players[(this._currentPlayerIndex + 1) % this._players.length];
     }
 
-
     constructor() {
         this.initMatch();
     }
-
 
     private getBallsByColor(color: Color): Ball[] {
         return this._balls.filter((ball: Ball) => ball.color === color);
@@ -162,16 +158,17 @@ export class GameWorld {
         }    
     }
 
-    private resolveBallInPocket(ball: Ball): boolean {
+    private isInsidePocket(position: Vector2): boolean {
+        return GAME_CONFIG.POCKETS_POSITIONS
+            .some((pocketPos: Vector2) => position.distFrom(pocketPos) <= GAME_CONFIG.POCKET_RADIUS);
 
-        const inPocket: boolean = GAME_CONFIG.POCKETS_POSITIONS
-            .some((pocketPos: Vector2) => ball.position.distFrom(pocketPos) <= GAME_CONFIG.POCKET_RADIUS);
+    }
 
-        if(inPocket) {
+    private resolveBallInPocket(ball: Ball): void {
+
+        if (this.isInsidePocket(ball.position)) {
             ball.hide();
         }
-
-        return inPocket;
     }
 
     private isValidPlayerColor(color: Color): boolean {
@@ -180,8 +177,8 @@ export class GameWorld {
 
     private handleBallsInPockets(): void {
         this._balls.forEach((ball: Ball) => {
-            const inPocket = this.resolveBallInPocket(ball);
-            if (inPocket && !this._turnState.pocketedBalls.includes(ball)) {
+            this.resolveBallInPocket(ball);
+            if (!ball.visible && !this._turnState.pocketedBalls.includes(ball)) {
                 Assets.playSound(GAME_CONFIG.SOUNDS.RAIL, 1);
                 if(!this.currentPlayer.color && this.isValidPlayerColor(ball.color)) {
                     this.currentPlayer.color = ball.color;
@@ -229,7 +226,7 @@ export class GameWorld {
         this._turnState.isValid = this._referee.isValidTurn(this.currentPlayer, this._turnState);
     }
 
-    private gameOver(): void {
+    private handleGameOver(): void {
         if (this._turnState.isValid) {
             this.currentPlayer.overallScore++;
         }
@@ -239,12 +236,18 @@ export class GameWorld {
         this.initMatch();
     }
 
+    private isGameOver(): boolean {
+        return !this._8Ball.visible || 
+               (!this._cueBall.visible && this.currentPlayer.matchScore === 7) ||
+               (!this._cueBall.visible && this.currentPlayer.matchScore === 8)
+    }
+
     private nextTurn(): void {
 
         const foul = !this._turnState.isValid;
 
-        if(!this._8Ball.visible){
-            this.gameOver();
+        if(this.isGameOver()){
+            this.handleGameOver();
             return;
         }
 
@@ -295,7 +298,6 @@ export class GameWorld {
                 );   
         }
     }
-
 
     public initMatch(): void {
 
@@ -348,9 +350,9 @@ export class GameWorld {
     public draw(): void {
         Canvas2D.drawImage(Assets.getSprite(GAME_CONFIG.SPRITES.TABLE));
         this.drawCurrentPlayerLabel();
+        this.drawMatchScores();
         this.drawOverallScores();
         this._balls.forEach((ball: Ball) => ball.draw());
         this._stick.draw();
-        this.drawMatchScores();
     }
 }
