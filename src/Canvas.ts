@@ -92,6 +92,7 @@ class Canvas2D_Singleton {
 
     public drawText(text: string, font:string, color: string, position: Vector2, textAlign: string = 'left'): void {
         this._context.save();
+        this._context.scale(this._scale.x, this._scale.y);
         this._context.fillStyle = color;
         this._context.font = font;
         this._context.textAlign = textAlign as CanvasTextAlign;

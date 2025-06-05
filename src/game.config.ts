@@ -1,5 +1,4 @@
 export const GAME_CONFIG : any = {
-
     GAME_WIDTH: 1500,
     GAME_HEIGHT: 825,
 
@@ -23,6 +22,19 @@ export const GAME_CONFIG : any = {
     ],
     CUE_BALL_POSITION: { x: 413, y: 413 },
     EIGHT_BALL_POSITION: { x: 1090, y: 413 },
+    MATCH_SCORE_POSITIONS: [
+        { x: 420, y: 27 },
+        { x: 932, y: 27 }
+    ],
+    MATCH_SCORE_MARGIN: 20,
+
+    OVERALL_SCORE_LABELS_POSITIONS: [
+        { x: 628, y: 460 },
+        { x: 778, y: 460 },
+    ],
+    OVERALL_SCORE_LABEL_FONT: '200px Impact',
+    OVERALL_SCORE_LABEL_COLOR: '#126736',
+    OVERALL_SCORE_LABEL_ALLIGNMENT: 'top',
 
     SPRITES_BASE_PATH: 'assets/sprites/',
     SPRITES: {
@@ -56,8 +68,15 @@ export const GAME_CONFIG : any = {
         ABOUT_BUTTON : "about_button.png",
         ABOUT_BUTTON_HOVERED : "about_button_hover.png",
         CONTROLS : "controls.png",
+        RED_SCORE: "red_score.png",
+        YELLOW_SCORE: "yellow_score.png",
     },
-    AUDIO_BASE_PATH: 'assets/sounds/',
+    SOUNDS_BASE_PATH: 'assets/sounds/',
+    SOUNDS: {
+        BALLS_COLLIDE: "BallsCollide.wav",
+        STRIKE: "Strike.wav",
+        RAIL: "Hole.wav",
+    },
 
     FRICTION: 0.0208,
     COLLISION_LOSS: 0.0208,
@@ -73,17 +92,26 @@ export const GAME_CONFIG : any = {
         { x: 1435, y: 762 },
     ],
 
+    CURRENT_PLAYER_LABEL_POSITION: { x: 640, y: 260},
+    CURRENT_PLAYER_LABEL_COLOR: '#126736',
+    CURRENT_PLAYER_LABEL: 'PLAYER ',
+    CURRENT_PLAYER_LABEL_FONT: '70px Impact',
+    CURRENT_PLAYER_LABEL_ALIGNMENT: 'top',
+
     BALL_DIAMETER: 38,
     BALL_ORIGIN: { x: 25, y: 25 },
     BALL_MIN_VELOCITY_LENGTH: 0.05,
+    MAX_BALL_EXPECTED_VELOCITY: 200,
+    MAX_BALL_EXPECTED_COLLISION_FORCE: 50,
 
     STICK_ORIGIN: { x: 970, y: 11 },
     STICK_SHOT_ORIGIN: { x: 950, y: 11 },
     POWER_TO_ADD_PER_FRAME: 1,
     STICK_MOVEMENT_PER_FRAME: 2,
-    STICK_MAX_POWER: 70,
+    STICK_MAX_POWER: 65,
 
     SHOOT_MOUSE_BUTTON: 0,
+    PLACE_BALL_IN_HAND_MOUSE_BUTTON: 0,
     INCREASE_SHOT_POWER_KEY: 87,
     DECREASE_SHOT_POWER_KEY: 83,
 
