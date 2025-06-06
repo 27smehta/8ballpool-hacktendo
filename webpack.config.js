@@ -10,6 +10,10 @@ module.exports = {
         test: /\.tsx?$/,
         use: 'ts-loader',
         exclude: /node_modules/
+      },
+      {
+        test: /\.(png|svg|jpg|jpeg|gif)$/i,
+        type: 'asset/resource',
       }
     ]
   },
@@ -18,6 +22,10 @@ module.exports = {
   },
   output: {
     filename: 'bundle.js',
-    path: path.resolve(__dirname, 'public')
+    path: path.resolve(__dirname, 'public'),
+    clean: true
+  },
+  optimization: {
+    minimize: true
   }
 };
