@@ -122,6 +122,7 @@ export class Stick {
             this._power = Math.min(mapRange(dragDistance, 0, maxDragDistance, 0, GAME_CONFIG.STICK_MAX_POWER), GAME_CONFIG.STICK_MAX_POWER);
         } else {
             this._isDragging = false;
+            this._power = 0;
         }
 
         this._origin = new Vector2(
@@ -153,6 +154,7 @@ export class Stick {
         this._visible = true;
         this._isDragging = false;
         this._isTouching = false;
+        this._power = 0;
     }
 
     public shoot(): void {
