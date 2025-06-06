@@ -2,5 +2,7 @@ export enum MenuAction {
     CONTINUE,
     PVP,
     PVC,
-    ToggleSound
+    ToggleSound,
+    Controls,
+    Theme
 }

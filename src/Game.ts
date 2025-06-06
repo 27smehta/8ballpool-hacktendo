@@ -11,6 +11,7 @@ let menuActionsMap: Map<MenuAction, () => void>;
 let menu: MainMenu;
 let poolGame: GameWorld;
 let isLoading: boolean;
+let showingControls: boolean = false;
 
 const loadingScreen = () => {
     return new Promise<void>((resolve) => {
@@ -45,11 +46,23 @@ const toggleSound = () => {
     GAME_CONFIG.SOUND_ON = !GAME_CONFIG.SOUND_ON;
 }
 
+const showControls = () => {
+    showingControls = true;
+    menu.active = false;
+}
+
+const showTheme = () => {
+    // TODO: Implement theme functionality
+    console.log("Theme feature coming soon!");
+}
+
 const initMenuActions = () => {
     menuActionsMap = new Map<MenuAction, () => void>();
     menuActionsMap.set(MenuAction.PVP, pvp);
     menuActionsMap.set(MenuAction.PVC, pvc);
     menuActionsMap.set(MenuAction.ToggleSound, toggleSound);
+    menuActionsMap.set(MenuAction.Controls, showControls);
+    menuActionsMap.set(MenuAction.Theme, showTheme);
 }
 
 const initGame = async () => {
@@ -65,13 +78,21 @@ const initGame = async () => {
 const handleInput = () => {
     if (!menu.active && Keyboard.isPressed(GAME_CONFIG.BACK_TO_MENU_KEY)) {
         menu.active = true;
+        showingControls = false;
     }
 }
 
 const update = () => {
     if (isLoading) return;
     handleInput();
-    menu.active ? menu.update() : poolGame.update();
+    if (showingControls) {
+        if (Mouse.isPressed(GAME_CONFIG.SELECT_MOUSE_BUTTON)) {
+            showingControls = false;
+            menu.active = true;
+        }
+    } else {
+        menu.active ? menu.update() : poolGame.update();
+    }
     Keyboard.reset();
     Mouse.reset();
 }
@@ -79,7 +100,11 @@ const update = () => {
 const draw = () => {
     if (isLoading) return;
     Canvas2D.clear();
-    menu.active ? menu.draw() : poolGame.draw();
+    if (showingControls) {
+        Canvas2D.drawImage(Assets.getSprite(GAME_CONFIG.SPRITES.CONTROLS));
+    } else {
+        menu.active ? menu.draw() : poolGame.draw();
+    }
 }
 
 const gameLoop = () => {

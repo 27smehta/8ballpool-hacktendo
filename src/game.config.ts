@@ -71,7 +71,7 @@ export const GAME_CONFIG : any = {
         ABOUT_BUTTON_HOVERED : "about_button_hover.png",
         CONTROLS : "controls.png",
         RED_SCORE: "red_score.png",
-        YELLOW_SCORE: "yellow_score.png",
+        YELLOW_SCORE: "yellow_score.png"
     },
     SOUNDS_BASE_PATH: 'dist/assets/sounds/',
     SOUNDS: {
@@ -153,6 +153,20 @@ export const GAME_CONFIG : any = {
             font: '100px Impact',
             color: '#126736',
             alignment: 'center'
+        },
+        {
+            text: 'Controls',
+            position: { x: 50, y: 50 },
+            font: '30px Arial',
+            color: '#126736',
+            alignment: 'left'
+        },
+        {
+            text: 'Theme (Coming Soon)',
+            position: { x: 200, y: 50 },
+            font: '30px Arial',
+            color: '#126736',
+            alignment: 'left'
         }
     ],
     DEFAULT_CURSOR: 'default',

@@ -31,18 +31,24 @@ export class MainMenu {
         });
 
         this._labels = GAME_CONFIG.MAIN_MENU_LABELS.map((label: any) => {
+            const onClick = label.text === 'Controls' ? actionsMap.get(MenuAction.Controls) :
+                          label.text === 'Theme (Coming Soon)' ? actionsMap.get(MenuAction.Theme) :
+                          undefined;
+            
             return new MenuLabel(
                 label.text,
                 label.position,
                 label.font,
                 label.color,
-                label.alignment
+                label.alignment,
+                onClick
             );
         });
     }
 
     public update(): void {
         this._buttons.forEach((button: MenuButton) => button.update());
+        this._labels.forEach((label: MenuLabel) => label.update());
     }
 
     public draw(): void {
