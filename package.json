@@ -6,8 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "webpack --mode development",
-    "start": "http-server public",
-    "build": "webpack --mode production && mkdir -p public/assets && cp -r assets/* public/assets/ || true"
+    "start": "http-server dist",
+    "build": "webpack --mode production && mkdir -p dist/assets && cp -r assets/* dist/assets/ || true"
   },
   "author": "Chen Shmilovich",
   "license": "ISC",
