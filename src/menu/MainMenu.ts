@@ -1,4 +1,5 @@
 import { MenuButton } from './MenuButton';
+import { MenuLabel } from './MenuLabel';
 import { Assets } from './../Assets';
 import { Canvas2D } from './../Canvas';
 import { GAME_CONFIG } from '../game.config';
@@ -7,6 +8,7 @@ import { MenuAction } from './MenuAction';
 export class MainMenu {
 
     private _buttons: MenuButton[]
+    private _labels: MenuLabel[]
     private _active: boolean;
 
     public set active(value: boolean) {
@@ -23,8 +25,19 @@ export class MainMenu {
                     actionsMap.get(button.action),
                     button.position, 
                     Assets.getSprite(GAME_CONFIG.SPRITES[button.sprite]), 
-                    Assets.getSprite(GAME_CONFIG.SPRITES[button.spriteOnHover])
+                    Assets.getSprite(GAME_CONFIG.SPRITES[button.spriteOnHover]),
+                    button.spriteOnPressed ? Assets.getSprite(GAME_CONFIG.SPRITES[button.spriteOnPressed]) : null
                 );
+        });
+
+        this._labels = GAME_CONFIG.MAIN_MENU_LABELS.map((label: any) => {
+            return new MenuLabel(
+                label.text,
+                label.position,
+                label.font,
+                label.color,
+                label.alignment
+            );
         });
     }
 
@@ -35,6 +48,7 @@ export class MainMenu {
     public draw(): void {
         Canvas2D.changeCursor(GAME_CONFIG.DEFAULT_CURSOR);
         Canvas2D.drawImage(Assets.getSprite(GAME_CONFIG.SPRITES.MAIN_MENU_BACKGROUND))
+        this._labels.forEach((label: MenuLabel) => label.draw());
         this._buttons.forEach((button: MenuButton) => button.draw());
     }
 }

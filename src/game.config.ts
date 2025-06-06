@@ -146,6 +146,15 @@ export const GAME_CONFIG : any = {
             spriteOnPressed: 'MUTE_BUTTON_PRESSED'
         }
     ],
+    MAIN_MENU_LABELS: [
+        {
+            text: '8 BALL POOL',
+            position: { x: 750, y: 100 },
+            font: '100px Impact',
+            color: '#126736',
+            alignment: 'center'
+        }
+    ],
     DEFAULT_CURSOR: 'default',
     BUTTON_CURSOR: 'pointer',
 
