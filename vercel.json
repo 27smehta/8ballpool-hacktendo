@@ -1,6 +1,13 @@
 {
   "buildCommand": "npm run build",
-    "env": {
-    "NODE_OPTIONS": "--openssl-legacy-provider"
+  "outputDirectory": "public",
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
+  ],
+  "env": {
+    "NODE_OPTIONS": "--openssl-legacy-provider"
+  }
 }
