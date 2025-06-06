@@ -38,7 +38,7 @@ export const GAME_CONFIG : any = {
     OVERALL_SCORE_LABEL_COLOR: '#126736',
     OVERALL_SCORE_LABEL_ALIGNMENT: 'top',
 
-    SPRITES_BASE_PATH: 'assets/sprites/',
+    SPRITES_BASE_PATH: 'dist/assets/sprites/',
     SPRITES: {
         MAIN_MENU_BACKGROUND : "main_menu_background.png",
         TABLE : "spr_background4.png",
@@ -73,7 +73,7 @@ export const GAME_CONFIG : any = {
         RED_SCORE: "red_score.png",
         YELLOW_SCORE: "yellow_score.png",
     },
-    SOUNDS_BASE_PATH: 'assets/sounds/',
+    SOUNDS_BASE_PATH: 'dist/assets/sounds/',
     SOUNDS: {
         BALLS_COLLIDE: "BallsCollide.wav",
         STRIKE: "Strike.wav",
