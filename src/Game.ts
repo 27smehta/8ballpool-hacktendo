@@ -13,7 +13,7 @@ let poolGame: GameWorld;
 let isLoading: boolean;
 
 const loadingScreen = () => {
-    return new Promise((resolve) => {
+    return new Promise<void>((resolve) => {
         isLoading = true;
          Canvas2D.clear();
         Canvas2D.drawImage(

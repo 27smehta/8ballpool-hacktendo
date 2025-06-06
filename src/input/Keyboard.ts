@@ -1,10 +1,10 @@
-import { MenuButton } from './MenuButton';
+import { MenuButton } from '../menu/MenuButton';
+import { MenuAction } from '../menu/MenuAction';
 import { Assets } from './../Assets';
 import { Canvas2D } from './../Canvas';
 import { GAME_CONFIG } from '../game.config';
-import { MenuAction } from './MenuAction';
 
-export class MainMenu {
+export class Keyboard {
 
     private _buttons: MenuButton[]
     private _active: boolean;
@@ -38,8 +38,3 @@ export class MainMenu {
         this._buttons.forEach((button: MenuButton) => button.draw());
     }
 }
-
-
-
-
-?
