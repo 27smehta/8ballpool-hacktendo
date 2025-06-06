@@ -105,8 +105,22 @@ class Canvas2D_Singleton {
     }
 }
 
-const canvas : HTMLCanvasElement = document.getElementById('screen') as HTMLCanvasElement;
-const container : HTMLElement = document.getElementById('gameArea') as HTMLElement;
-export const Canvas2D = new Canvas2D_Singleton(canvas, container);
+let Canvas2D: Canvas2D_Singleton;
 
-window.addEventListener('resize', Canvas2D.resizeCanvas.bind(Canvas2D));
+function initializeCanvas() {
+    const canvas = document.getElementById('screen') as HTMLCanvasElement;
+    const container = document.getElementById('gameArea') as HTMLElement;
+    if (canvas && container) {
+        Canvas2D = new Canvas2D_Singleton(canvas, container);
+        window.addEventListener('resize', Canvas2D.resizeCanvas.bind(Canvas2D));
+    }
+}
+
+// Initialize canvas after DOM is loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeCanvas);
+} else {
+    initializeCanvas();
+}
+
+export { Canvas2D };
