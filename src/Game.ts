@@ -46,6 +46,7 @@ const initGame = async () => {
     menu = new MainMenu(menuActionsMap);
     menu.active = true;
     poolGame = new GameWorld();
+    Keyboard.init();
     gameLoop();
 }
 

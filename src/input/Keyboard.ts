@@ -5,6 +5,7 @@ import { Canvas2D } from './../Canvas';
 import { GAME_CONFIG } from '../game.config';
 
 export class Keyboard {
+    private static _keys: { [key: string]: boolean } = {};
 
     private _buttons: MenuButton[]
     private _active: boolean;
@@ -36,5 +37,26 @@ export class Keyboard {
         Canvas2D.changeCursor(GAME_CONFIG.DEFAULT_CURSOR);
         Canvas2D.drawImage(Assets.getSprite(GAME_CONFIG.SPRITES.MAIN_MENU_BACKGROUND))
         this._buttons.forEach((button: MenuButton) => button.draw());
+    }
+
+    public static isPressed(key: string): boolean {
+        return this._keys[key] || false;
+    }
+
+    public static isDown(key: string): boolean {
+        return this._keys[key] || false;
+    }
+
+    public static reset(): void {
+        this._keys = {};
+    }
+
+    public static init(): void {
+        window.addEventListener('keydown', (e) => {
+            Keyboard._keys[e.key] = true;
+        });
+        window.addEventListener('keyup', (e) => {
+            Keyboard._keys[e.key] = false;
+        });
     }
 }
