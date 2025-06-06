@@ -104,7 +104,7 @@ export class Stick {
     private updateTouchRotation(touchPosition: Vector2): void {
         const opposite: number = touchPosition.y - this._position.y;
         const adjacent: number = touchPosition.x - this._position.x;
-        this._rotation = Math.atan2(opposite, adjacent);
+        this._rotation = Math.atan2(opposite, adjacent) + Math.PI;
     }
 
     private updatePower(): void {
@@ -134,7 +134,7 @@ export class Stick {
         if (!this._isTouching) {
             const opposite: number = Mouse.position.y - this._position.y;
             const adjacent: number = Mouse.position.x - this._position.x;
-            this._rotation = Math.atan2(opposite, adjacent);
+            this._rotation = Math.atan2(opposite, adjacent) + Math.PI;
         }
     }
 
