@@ -36,7 +36,7 @@ export const GAME_CONFIG : any = {
     ],
     OVERALL_SCORE_LABEL_FONT: '200px Impact',
     OVERALL_SCORE_LABEL_COLOR: '#126736',
-    OVERALL_SCORE_LABEL_ALLIGNMENT: 'top',
+    OVERALL_SCORE_LABEL_ALIGNMENT: 'top',
 
     SPRITES_BASE_PATH: 'assets/sprites/',
     SPRITES: {
@@ -132,14 +132,23 @@ export const GAME_CONFIG : any = {
             spriteOnPressed: null 
         },
         { 
+            action: MenuAction.PVC,
             position: { x: 200, y: 400 },
             sprite: 'ONE_PLAYER_BUTTON', 
             spriteOnHover: 'ONE_PLAYER_BUTTON_HOVERED', 
             spriteOnPressed: null 
+        },
+        {
+            action: MenuAction.ToggleSound,
+            position: { x: 1400, y: 50 },
+            sprite: 'MUTE_BUTTON',
+            spriteOnHover: 'MUTE_BUTTON_HOVERED',
+            spriteOnPressed: 'MUTE_BUTTON_PRESSED'
         }
     ],
     DEFAULT_CURSOR: 'default',
     BUTTON_CURSOR: 'pointer',
 
-    LOADING_SCREEN_IMAGE_POSITION: { x: 450, y: 112.5 }
+    LOADING_SCREEN_IMAGE_POSITION: { x: 450, y: 112.5 },
+    SOUND_ON: true
 };

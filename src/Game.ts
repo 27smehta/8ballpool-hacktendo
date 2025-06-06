@@ -15,11 +15,11 @@ let isLoading: boolean;
 const loadingScreen = () => {
     return new Promise<void>((resolve) => {
         isLoading = true;
-         Canvas2D.clear();
+        Canvas2D.clear();
         Canvas2D.drawImage(
             Assets.getSprite(GAME_CONFIG.SPRITES.CONTROLS),
             GAME_CONFIG.LOADING_SCREEN_IMAGE_POSITION
-            );
+        );
         setTimeout(() => {
             isLoading = false;
             resolve();
@@ -34,14 +34,26 @@ const pvp = () => {
     });
 }
 
+const pvc = () => {
+    loadingScreen().then(() => {
+        menu.active = false;
+        poolGame.initMatch();
+    });
+}
+
+const toggleSound = () => {
+    GAME_CONFIG.SOUND_ON = !GAME_CONFIG.SOUND_ON;
+}
+
 const initMenuActions = () => {
     menuActionsMap = new Map<MenuAction, () => void>();
     menuActionsMap.set(MenuAction.PVP, pvp);
+    menuActionsMap.set(MenuAction.PVC, pvc);
+    menuActionsMap.set(MenuAction.ToggleSound, toggleSound);
 }
 
 const initGame = async () => {
     await Assets.loadGameAssets();
-
     initMenuActions();
     menu = new MainMenu(menuActionsMap);
     menu.active = true;
@@ -51,7 +63,7 @@ const initGame = async () => {
 }
 
 const handleInput = () => {
-    if (Keyboard.isPressed(GAME_CONFIG.BACK_TO_MENU_KEY)) {
+    if (!menu.active && Keyboard.isPressed(GAME_CONFIG.BACK_TO_MENU_KEY)) {
         menu.active = true;
     }
 }
