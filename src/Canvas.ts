@@ -89,6 +89,10 @@ class Canvas2D_Singleton {
         this._context.restore();
     }
 
+    public changeCursor(cursor: string): void {
+        this._canvas.style.cursor = cursor;
+    }
+
 
     public drawText(text: string, font:string, color: string, position: Vector2, textAlign: string = 'left'): void {
         this._context.save();
