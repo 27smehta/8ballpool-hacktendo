@@ -87,7 +87,20 @@ export class Stick {
         });
     }
 
+    private isInsideStick(position: Vector2): boolean {
+        const stickLength = 200;
+        const stickWidth = 20;
+        const dx = position.x - this._position.x;
+        const dy = position.y - this._position.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const angle = Math.atan2(dy, dx);
+        const relativeAngle = Math.abs(angle - (this._rotation - Math.PI));
+        return distance <= stickLength && relativeAngle < Math.PI / 4;
+    }
+
     private updateTouchPower(touchPosition: Vector2): void {
+        if (!this.isInsideStick(touchPosition)) return;
+
         const dragDistance = Math.sqrt(
             Math.pow(touchPosition.x - this._touchStartPosition.x, 2) + 
             Math.pow(touchPosition.y - this._touchStartPosition.y, 2)
@@ -109,17 +122,19 @@ export class Stick {
 
     private updatePower(): void {
         if (Mouse.isDown(0)) {
-            if (!this._isDragging) {
+            if (!this._isDragging && this.isInsideStick(Mouse.position)) {
                 this._isDragging = true;
                 this._dragStartPosition = Vector2.copy(Mouse.position);
             }
             
-            const dragDistance = Math.sqrt(
-                Math.pow(Mouse.position.x - this._dragStartPosition.x, 2) + 
-                Math.pow(Mouse.position.y - this._dragStartPosition.y, 2)
-            );
-            const maxDragDistance = 200;
-            this._power = Math.min(mapRange(dragDistance, 0, maxDragDistance, 0, GAME_CONFIG.STICK_MAX_POWER), GAME_CONFIG.STICK_MAX_POWER);
+            if (this._isDragging) {
+                const dragDistance = Math.sqrt(
+                    Math.pow(Mouse.position.x - this._dragStartPosition.x, 2) + 
+                    Math.pow(Mouse.position.y - this._dragStartPosition.y, 2)
+                );
+                const maxDragDistance = 200;
+                this._power = Math.min(mapRange(dragDistance, 0, maxDragDistance, 0, GAME_CONFIG.STICK_MAX_POWER), GAME_CONFIG.STICK_MAX_POWER);
+            }
         } else {
             this._isDragging = false;
             this._power = 0;
