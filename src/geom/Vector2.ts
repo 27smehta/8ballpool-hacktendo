@@ -1,16 +1,11 @@
-
 export class Vector2 {
-
-
     private _x: number;
     private _y: number;
-
 
     constructor(x: number, y: number) {
         this._x = x;
         this._y = y;
     }
-
 
     get x() {
         return this._x;
@@ -27,7 +22,6 @@ export class Vector2 {
     get length(): number {
         return Math.sqrt(Math.pow(this._x, 2) + Math.pow(this._y, 2));
     }
-
 
     public static copy(vector: Vector2) {
         return new Vector2(vector.x, vector.y);

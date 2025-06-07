@@ -1,7 +1,6 @@
 import { GAME_CONFIG } from './game.config';
 
 class Assets_Singleton {
-
     _sprites: Map<string, HTMLImageElement>;
     _sounds: Map<string, HTMLAudioElement>;
 
@@ -34,7 +33,6 @@ class Assets_Singleton {
     private loadSprite(path: string): Promise<void> {
         const img = new Image();
         this._sprites.set(path, img);
-
         return new Promise(resolve => {
             img.onload = () => resolve();
             img.src = GAME_CONFIG.SPRITES_BASE_PATH + path;
@@ -43,14 +41,12 @@ class Assets_Singleton {
     
     private async loadGameSprites(): Promise<void> {
         const loadPromises = Object.values(GAME_CONFIG.SPRITES).map(this.loadSprite.bind(this));
-
         await Promise.all(loadPromises);
     }
 
     private loadSound(path: string): Promise<void> {
         const audio: HTMLAudioElement = new Audio();
         this._sounds.set(path, audio);
-
         return new Promise(resolve => {
             audio.src = GAME_CONFIG.SOUNDS_BASE_PATH + path;
             resolve();
@@ -59,10 +55,8 @@ class Assets_Singleton {
 
     private async loadGameSounds(): Promise<void> {
         const loadPromises = Object.values(GAME_CONFIG.SOUNDS).map(this.loadSound.bind(this));
-        
         await Promise.all(loadPromises);
     }
-
 }
 
 export const Assets = new Assets_Singleton();

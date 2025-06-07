@@ -13,7 +13,7 @@ export class MenuLabel {
         private _position: Vector2,
         private _font: string,
         private _color: string,
-        private _alignment: string,
+        private _alignment: CanvasTextAlign,
         private _onClick?: () => void
     ) {
         this._width = this._text.length * 15; // Approximate width based on text length
@@ -37,6 +37,12 @@ export class MenuLabel {
 
     public draw(): void {
         const color = this._hovered ? '#1a8c4a' : this._color;
-        Canvas2D.drawText(this._text, this._font, color, this._position, this._alignment);
+        Canvas2D.drawText(
+            this._text,
+            this._position,
+            this._font,
+            color,
+            this._alignment
+        );
     }
 } 

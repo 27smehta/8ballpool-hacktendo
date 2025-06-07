@@ -3,7 +3,6 @@ import { Canvas2D } from './../Canvas';
 import { Vector2 } from './../geom/Vector2';
 
 class Mouse_Singleton {
-
     private _buttonStates: ButtonState[] = [];
     private _position: Vector2;
 
@@ -12,13 +11,10 @@ class Mouse_Singleton {
     }
 
     constructor() {
-
         for(let i = 0 ; i < 3 ; i ++ ) {
             this._buttonStates[i] = new ButtonState();
         }
-
         this._position = Vector2.zero;
-
         document.addEventListener('mousemove', (event) => this.handleMouseMove(event));
         document.addEventListener('mousedown', (event) => this.handleMouseDown(event));
         document.addEventListener('mouseup', (event) => this.handleMouseUp(event));
