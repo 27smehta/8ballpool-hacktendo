@@ -7,7 +7,7 @@ interface MenuConfig {
         position: { x: number; y: number };
         font: string;
         color: string;
-        alignment: string;
+        alignment: CanvasTextAlign;
     }>;
     BUTTONS: Array<{
         action: MenuActionType;
@@ -32,6 +32,18 @@ export const GAME_CONFIG = {
     SOUND_ON: true,
     SPRITES_BASE_PATH: './assets/sprites/',
     SOUNDS_BASE_PATH: './assets/sounds/',
+    CURRENT_PLAYER_LABEL: 'Player ',
+    CURRENT_PLAYER_LABEL_FONT: '30px Arial',
+    CURRENT_PLAYER_LABEL_COLOR: 'white',
+    CURRENT_PLAYER_LABEL_POSITION: new Vector2(800, 50),
+    CURRENT_PLAYER_LABEL_ALIGNMENT: 'center' as CanvasTextAlign,
+    OVERALL_SCORE_LABEL_FONT: '30px Arial',
+    OVERALL_SCORE_LABEL_COLOR: 'white',
+    OVERALL_SCORE_LABELS_POSITIONS: [
+        new Vector2(400, 50),
+        new Vector2(1200, 50)
+    ],
+    OVERALL_SCORE_LABELS_ALLIGNMENT: 'center' as CanvasTextAlign,
     SPRITES: {
         MAIN_MENU_BACKGROUND: 'MAIN_MENU_BACKGROUND',
         TABLE: 'TABLE',
@@ -62,14 +74,14 @@ export const GAME_CONFIG = {
                 position: { x: 100, y: 100 },
                 font: '100px Bookman',
                 color: 'white',
-                alignment: 'left'
+                alignment: 'left' as CanvasTextAlign
             },
             {
                 text: `© ${new Date().getFullYear()} Chen Shmilovich`,
                 position: { x: 1250, y: 800 },
                 font: '20px Bookman',
                 color: 'white',
-                alignment: 'left'
+                alignment: 'left' as CanvasTextAlign
             }
         ],
         BUTTONS: [
@@ -101,14 +113,14 @@ export const GAME_CONFIG = {
                         position: { x: 100, y: 100 },
                         font: '100px Bookman',
                         color: 'white',
-                        alignment: 'left'
+                        alignment: 'left' as CanvasTextAlign
                     },
                     {
                         text: `© ${new Date().getFullYear()} Chen Shmilovich`,
                         position: { x: 1250, y: 800 },
                         font: '20px Bookman',
                         color: 'white',
-                        alignment: 'left'
+                        alignment: 'left' as CanvasTextAlign
                     }
                 ],
                 BUTTONS: [

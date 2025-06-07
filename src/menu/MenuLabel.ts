@@ -39,9 +39,9 @@ export class MenuLabel {
         const color = this._hovered ? '#1a8c4a' : this._color;
         Canvas2D.drawText(
             this._text,
-            this._position,
             this._font,
             color,
+            this._position,
             this._alignment
         );
     }

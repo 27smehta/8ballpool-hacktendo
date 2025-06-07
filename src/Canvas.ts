@@ -38,8 +38,8 @@ class Canvas2D_Singleton {
 
     public resizeCanvas(): void {
         
-        const originalCanvasWidth = GAME_CONFIG.GAME_WIDTH;
-        const originalCanvasHeight = GAME_CONFIG.GAME_HEIGHT;
+        const originalCanvasWidth = GAME_CONFIG.CANVAS_WIDTH;
+        const originalCanvasHeight = GAME_CONFIG.CANVAS_HEIGHT;
         const widthToHeight: number = originalCanvasWidth / originalCanvasHeight;
 
         let newHeight: number = window.innerHeight;
@@ -94,12 +94,12 @@ class Canvas2D_Singleton {
     }
 
 
-    public drawText(text: string, font:string, color: string, position: Vector2, textAlign: string = 'left'): void {
+    public drawText(text: string, font: string, color: string, position: Vector2, textAlign: CanvasTextAlign = 'left'): void {
         this._context.save();
         this._context.scale(this._scale.x, this._scale.y);
         this._context.fillStyle = color;
         this._context.font = font;
-        this._context.textAlign = textAlign as CanvasTextAlign;
+        this._context.textAlign = textAlign;
         this._context.fillText(text, position.x, position.y);
         this._context.restore();
     }
