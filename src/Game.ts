@@ -1,17 +1,22 @@
-import { GoToPreviousMenuCommand } from './menu/commands/GoToPreviousMenuCommand';
-import { GoToSubMenuCommand } from './menu/commands/GoToSubMenuCommand';
-import { ToggleSoundCommand } from './menu/commands/ToggleSoundCommand';
-import { PVCCommand } from './menu/commands/PVCCommand';
-import { PVPCommand } from './menu/commands/PVPCommand';
-import { IMenuCommand } from './menu/commands/IMenuCommand';
-import { GAME_CONFIG } from './game.config';
-import { MenuActionType } from './menu/MenuActionType';
-import { Menu } from './menu/Menu';
-import { Assets } from './Assets';
-import { GameWorld } from './game-objects/GameWorld';
-import { Keyboard } from './input/Keyboard';
-import { Canvas2D } from './Canvas';
-import { Mouse } from './input/Mouse';
+import { AI } from './ai/ai-trainer';
+import { GoToPreviousMenuCommand } from './menu/commands/go-to-previous-menu-command';
+import { GoToSubMenuCommand } from './menu/commands/go-to-sub-menu-command';
+import { ToggleSoundCommand } from './menu/commands/toggle-sound-command';
+import { PVCCommand } from './menu/commands/pvc-command';
+import { PVPCommand } from './menu/commands/pvp-command';
+import { IMenuCommand } from './menu/commands/menu-command';
+import { GameConfig } from './game.config';
+import { MenuActionType } from './menu/menu-action-type';
+import { Menu } from './menu/menu';
+import { Assets } from './assets';
+import { GameWorld } from './game-objects/game-world';
+import { Keyboard } from './input/keyboard';
+import { Canvas2D } from './canvas';
+import { Mouse } from './input/mouse';
+import { IAssetsConfig, IInputConfig } from './game.config.type';
+
+const sprites: IAssetsConfig = GameConfig.sprites;
+const inputConfig: IInputConfig = GameConfig.input;
 
 export class Game {
     private _menuActionsMap: Map<MenuActionType, IMenuCommand>;
@@ -19,10 +24,7 @@ export class Game {
     private _menu: Menu = new Menu();
     private _poolGame: GameWorld;
     private _isLoading: boolean;
-
-    constructor() {
-        this.initMenuActions();
-    }
+    private _inGame: boolean;
 
     private initMenuActions(): void {
         this._menuActionsMap = new Map<MenuActionType, IMenuCommand>();
@@ -34,41 +36,7 @@ export class Game {
     }
 
     private initMainMenu(): void {
-        this._menu.init(this._menuActionsMap, GAME_CONFIG.MAIN_MENU_CONFIG);
-    }
-
-    public async init(): Promise<void> {
-        await Assets.loadGameAssets();
-        this.initMenuActions();
-        this.initMainMenu();
-        this._menu.active = true;
-        this._poolGame = new GameWorld();
-        this.gameLoop();
-    }
-
-    public goToSubMenu(index: number): void {
-        if(this._menu){
-            this._menu.active = false;
-            this._previousMenus.push(this._menu);
-        }
-        this._menu = this._menu.getSubMenu(index);
-        this._menu.active = true;
-    }
-    
-    public goToPreviousMenu(): void {
-        if(this._previousMenus.length > 0) {
-            this._menu.active = false;
-            this._menu = this._previousMenus.pop()!;
-            this._menu.active = true;
-        }
-    }
-
-    public start(): void {
-        this.displayLoadingScreen().then(() => {
-            this._menu.active = false;
-            this._poolGame = new GameWorld();
-            this._poolGame.initMatch();
-        });
+        this._menu.init(this._menuActionsMap, GameConfig.mainMenu);
     }
 
     private displayLoadingScreen(): Promise<void> {
@@ -76,20 +44,25 @@ export class Game {
             this._isLoading = true;
             Canvas2D.clear();
             Canvas2D.drawImage(
-                Assets.getSprite(GAME_CONFIG.SPRITES.CONTROLS),
-                GAME_CONFIG.LOADING_SCREEN_IMAGE_POSITION
-            );
+                Assets.getSprite(sprites.paths.controls),
+                GameConfig.loadingScreenImagePosition
+                );
             setTimeout(() => {
                 this._isLoading = false;
                 resolve();
-            }, GAME_CONFIG.LOADING_SCREEN_TIMEOUT);
+            }, GameConfig.loadingScreenTimeout);
         });
     }
 
     private handleInput(): void {
-        if (!this._menu.active && Keyboard.isPressed(GAME_CONFIG.BACK_TO_MENU_KEY)) {
-            this.initMainMenu();
-            this._menu.active = true;
+        if(this._inGame && Keyboard.isPressed(inputConfig.toggleMenuKey)) {
+            if(this._menu.active) {
+                this._menu.active = false;
+            }
+            else {
+                this.initMainMenu();
+                this._menu.active = true;
+            }
         }
     }
 
@@ -103,8 +76,10 @@ export class Game {
 
     private draw(): void {
         if (this._isLoading) return;
-        Canvas2D.clear();
-        this._menu.active ? this._menu.draw() : this._poolGame.draw();
+        if(AI.finishedSession){
+            Canvas2D.clear();
+            this._menu.active ? this._menu.draw() : this._poolGame.draw();
+        }
     }
 
     private gameLoop(): void {
@@ -115,19 +90,44 @@ export class Game {
         });
     }
 
-    public startPVP(): void {
-        this._poolGame = new GameWorld(true);
+    public async init(): Promise<void> {
+        await Assets.loadGameAssets();
+
+        this.initMenuActions();
+        this.initMainMenu();
+        this._menu.active = true;
+        this._poolGame = new GameWorld();
+        this.gameLoop();
     }
 
-    public startPVC(): void {
-        this._poolGame = new GameWorld(false);
+    public goToSubMenu(index: number): void {
+        setTimeout(() => {
+            if(this._menu){
+                this._menu.active = false;
+                this._previousMenus.push(this._menu);
+            }
+            this._menu = this._menu.getSubMenu(index);
+            this._menu.active = true;   
+        }, GameConfig.timeoutToLoadSubMenu);
     }
-
-    public executeMenuAction(action: MenuActionType, value?: number): void {
-        const command = this._menuActionsMap.get(action);
-        if (command) {
-            command.execute();
+    
+    public goToPreviousMenu(): void {
+        if(this._previousMenus.length > 0) {
+            setTimeout(() => {
+                this._menu.active = false;
+                this._menu = this._previousMenus.pop();
+                this._menu.active = true; 
+            }, GameConfig.timeoutToLoadSubMenu);
         }
+    }
+
+    public start(): void {
+        this.displayLoadingScreen().then(() => {
+            this._menu.active = false;
+            this._inGame = true;
+            this._poolGame = new GameWorld();
+            this._poolGame.initMatch();
+        });
     }
 }
 

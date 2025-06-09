@@ -1,32 +1,34 @@
-import { Vector2 } from '../geom/Vector2';
-import { GAME_CONFIG } from '../game.config';
-import { Mouse } from '../input/Mouse';
-import { Canvas2D } from '../Canvas';
-import { Assets } from '../Assets';
+import { IStickConfig, IInputConfig } from './../game.config.type';
+import { Keyboard } from '../input/keyboard';
+import { Mouse } from '../input/mouse';
+import { GameConfig } from '../game.config';
+import { Assets } from '../assets';
+import { Canvas2D } from '../canvas';
+import { Vector2 } from '../geom/vector2';
+import { mapRange } from '../common/helper';
+import { IAssetsConfig } from '../game.config.type';
+
+
+const inputConfig: IInputConfig = GameConfig.input;
+const stickConfig: IStickConfig = GameConfig.stick;
+const sprites: IAssetsConfig = GameConfig.sprites;
+const sounds: IAssetsConfig = GameConfig.sounds;
 
 export class Stick {
-    private _rotation: number;
-    private _power: number;
-    private _origin: Vector2;
-    private _visible: boolean;
-    private _isDragging: boolean;
-    private _dragStart: Vector2;
-    private _isTouchDragging: boolean;
-    private _touchStart: Vector2;
-    private _touchId: number;
 
-    constructor() {
-        this._rotation = 0;
-        this._power = 0;
-        this._origin = GAME_CONFIG.STICK_ORIGIN;
-        this._visible = false;
-        this._isDragging = false;
-        this._dragStart = Vector2.zero;
-        this._isTouchDragging = false;
-        this._touchStart = Vector2.zero;
-        this._touchId = -1;
+
+    private _sprite: HTMLImageElement = Assets.getSprite(sprites.paths.stick);
+    private _rotation: number = 0;
+    private _origin: Vector2 = Vector2.copy(stickConfig.origin);
+    private _power: number = 0;
+    private _movable: boolean = true;
+    private _visible: boolean = true;
+
+
+    public get position() : Vector2 {
+        return Vector2.copy(this._position);
     }
-
+    
     public get rotation(): number {
         return this._rotation;
     }
@@ -35,111 +37,90 @@ export class Stick {
         return this._power;
     }
 
-    public get origin(): Vector2 {
-        return this._origin;
+    public set movable(value: boolean) {
+        this._movable = value;
     }
 
     public get visible(): boolean {
         return this._visible;
     }
 
-    public show(): void {
-        this._visible = true;
-        this._power = 0;
+    public set visible(value: boolean) {
+        this._visible = value;
     }
 
-    public hide(): void {
-        this._visible = false;
-        this._power = 0;
+    public set rotation(value: number) {
+        this._rotation = value;
     }
 
-    public update(): void {
-        if (!this._visible) return;
 
-        if (this._isTouchDragging) {
-            this.updateTouchPower();
-        } else if (this._isDragging) {
-            this.updatePower();
-        } else {
-            this.updateRotation();
-        }
+    constructor(private _position: Vector2) {}
+
+
+    private increasePower(): void {
+        this._power += stickConfig.powerToAddPerFrame;
+        this._origin.addToX(stickConfig.movementPerFrame);
     }
 
-    private updateTouchPower(): void {
-        const touch = this.getActiveTouch();
-        if (!touch) {
-            this._isTouchDragging = false;
-            this._power = 0;
-            return;
-        }
+    private decreasePower(): void {
+        this._power -= stickConfig.powerToAddPerFrame;
+        this._origin.addToX(-stickConfig.movementPerFrame);
+    }
+    
+    private isLessThanMaxPower(): boolean {
+        return this._power < stickConfig.maxPower;
+    }
 
-        const currentPos = new Vector2(touch.clientX, touch.clientY);
-        const dragVector = currentPos.subtract(this._touchStart);
-        const dragDistance = dragVector.length;
-        this._power = Math.min(dragDistance / 2, GAME_CONFIG.STICK_MAX_POWER);
+    private isMoreThanMinPower(): boolean {
+        return this._power >= 0;
     }
 
     private updatePower(): void {
-        if (!Mouse.isDown(GAME_CONFIG.SELECT_MOUSE_BUTTON)) {
-            this._isDragging = false;
-            this._power = 0;
-            return;
+        if (Keyboard.isDown(inputConfig.increaseShotPowerKey) && this.isLessThanMaxPower()) {
+            this.increasePower();
         }
-
-        const currentPos = Mouse.position;
-        const dragVector = currentPos.subtract(this._dragStart);
-        const dragDistance = dragVector.length;
-        this._power = Math.min(dragDistance / 2, GAME_CONFIG.STICK_MAX_POWER);
+        else if (Keyboard.isDown(inputConfig.decreaseShotPowerKey) && this.isMoreThanMinPower()) {
+            this.decreasePower();
+        }
     }
 
     private updateRotation(): void {
-        if (Mouse.isPressed(GAME_CONFIG.SELECT_MOUSE_BUTTON)) {
-            this._isDragging = true;
-            this._dragStart = Mouse.position;
-            return;
-        }
-
-        const mousePos = Mouse.position;
-        const direction = mousePos.subtract(this._origin);
-        this._rotation = Math.atan2(direction.y, direction.x) + Math.PI;
+        const opposite: number = Mouse.position.y - this._position.y;
+        const adjacent: number = Mouse.position.x - this._position.x;
+        this._rotation = Math.atan2(opposite, adjacent);
     }
 
-    private getActiveTouch(): Touch | null {
-        const touches = Array.from(document.touches);
-        return touches.find(touch => touch.identifier === this._touchId) || null;
+
+    public hide(): void {
+        this._power = 0;
+        this._visible = false;
+        this._movable = false;
     }
 
-    public handleTouchStart(touch: Touch): void {
-        if (this._isTouchDragging) return;
-
-        const touchPos = new Vector2(touch.clientX, touch.clientY);
-        const direction = touchPos.subtract(this._origin);
-        this._rotation = Math.atan2(direction.y, direction.x) + Math.PI;
-
-        this._isTouchDragging = true;
-        this._touchStart = touchPos;
-        this._touchId = touch.identifier;
+    public show(position: Vector2): void {
+        this._position = position;
+        this._origin = Vector2.copy(stickConfig.origin);
+        this._movable = true;
+        this._visible = true;
     }
 
-    public handleTouchEnd(touch: Touch): void {
-        if (touch.identifier === this._touchId) {
-            this._isTouchDragging = false;
-            this._power = 0;
-            this._touchId = -1;
+    public shoot(): void {
+        this._origin = Vector2.copy(stickConfig.shotOrigin);
+        const volume: number = mapRange(this._power, 0, stickConfig.maxPower, 0, 1);
+        Assets.playSound(sounds.paths.strike, volume);
+    }
+
+    public update(): void {
+        if(this._movable) {
+            this.updateRotation();
+            this.updatePower();
         }
     }
 
-    public draw(ctx: CanvasRenderingContext2D): void {
-        if (!this._visible) return;
-
-        const stick = Assets.getSprite('STICK');
-        if (!stick) return;
-
-        ctx.save();
-        ctx.translate(this._origin.x, this._origin.y);
-        ctx.rotate(this._rotation);
-        ctx.translate(-this._power, 0);
-        ctx.drawImage(stick, -stick.width / 2, -stick.height / 2);
-        ctx.restore();
+    public draw(): void {
+        if(this._visible) {
+            Canvas2D.drawImage(this._sprite, this._position, this._rotation, this._origin);
+        }
     }
+
 }

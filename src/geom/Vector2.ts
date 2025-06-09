@@ -1,4 +1,7 @@
-export class Vector2 {
+import { IVector2 } from '../game.config.type';
+
+export class Vector2 implements IVector2 {
+
     private _x: number;
     private _y: number;
 
@@ -23,7 +26,7 @@ export class Vector2 {
         return Math.sqrt(Math.pow(this._x, 2) + Math.pow(this._y, 2));
     }
 
-    public static copy(vector: Vector2) {
+    public static copy(vector: IVector2) {
         return new Vector2(vector.x, vector.y);
     }
 

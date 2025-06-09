@@ -1,6 +1,6 @@
-import { ButtonState } from './ButtonState';
-import { Canvas2D } from './../Canvas';
-import { Vector2 } from './../geom/Vector2';
+import { ButtonState } from './button-state';
+import { Canvas2D } from '../canvas';
+import { Vector2 } from '../geom/vector2';
 
 class Mouse_Singleton {
     private _buttonStates: ButtonState[] = [];
@@ -14,7 +14,9 @@ class Mouse_Singleton {
         for(let i = 0 ; i < 3 ; i ++ ) {
             this._buttonStates[i] = new ButtonState();
         }
+
         this._position = Vector2.zero;
+
         document.addEventListener('mousemove', (event) => this.handleMouseMove(event));
         document.addEventListener('mousedown', (event) => this.handleMouseDown(event));
         document.addEventListener('mouseup', (event) => this.handleMouseUp(event));
