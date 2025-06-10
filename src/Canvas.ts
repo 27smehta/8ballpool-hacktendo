@@ -1,3 +1,4 @@
+// NOTE: Import this file as './canvas' (all lowercase) in all other files to avoid case-sensitivity issues on Linux servers.
 import { IVector2 } from './game.config.type';
 import { GameConfig } from './game.config';
 import { Vector2 } from './geom/vector2';
