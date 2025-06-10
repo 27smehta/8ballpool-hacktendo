@@ -21,11 +21,9 @@ module.exports = {
     path: path.resolve(__dirname, 'dist')
   },
   plugins: [
-    new CopyWebpackPlugin({
-      patterns: [
-        { from: 'index.html', to: 'index.html' },
-        { from: 'assets', to: 'assets' }
-      ]
-    })
+    new CopyWebpackPlugin([
+      { from: 'index.html', to: 'index.html' },
+      { from: 'assets', to: 'assets' }
+    ])
   ]
 };
