@@ -1,9 +1,9 @@
-import { IBallConfig, IPhysicsConfig, IAssetsConfig } from './../game.config.type';
-import { GameConfig } from '../game.config';
-import { Canvas2D } from '../canvas';
+import { IBallConfig, IPhysicsConfig, IAssetsConfig } from './../Game.config.type';
+import { GameConfig } from '../Game.config';
+import { Canvas2D } from '../Canvas';
 import { Color } from '../common/color';
 import { Vector2 } from '../geom/vector2';
-import { Assets } from '../assets';
+import { Assets } from '../Assets';
 
 const physicsConfig: IPhysicsConfig = GameConfig.physics;
 const sprites: IAssetsConfig = GameConfig.sprites;

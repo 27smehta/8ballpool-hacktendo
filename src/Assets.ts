@@ -1,5 +1,5 @@
-import { GameConfig } from './game.config';
-import { IAssetsConfig } from './game.config.type';
+import { GameConfig } from './Game.config';
+import { IAssetsConfig } from './Game.config.type';
 
 
 const sprites: IAssetsConfig = GameConfig.sprites;

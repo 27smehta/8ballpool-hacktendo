@@ -1,5 +1,5 @@
-import { IVector2 } from './game.config.type';
-import { GameConfig } from './game.config';
+import { IVector2 } from './Game.config.type';
+import { GameConfig } from './Game.config';
 import { Vector2 } from './geom/vector2';
 
 class Canvas2D_Singleton {

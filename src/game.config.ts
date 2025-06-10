@@ -1,5 +1,5 @@
 import { MenuActionType } from './menu/menu-action-type';
-import { IGameConfig } from './game.config.type';
+import { IGameConfig } from './Game.config.type';
 
 export const GameConfig : IGameConfig = {
     gameSize: { x: 1500, y: 825 },
