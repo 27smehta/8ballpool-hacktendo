@@ -102,17 +102,51 @@ export const GAME_CONFIG = {
         BALLS_COLLIDE: 'balls_collide'
     },
     MAIN_MENU_CONFIG: {
-        buttons: [
+        LABELS: [
             {
-                text: 'Two Players',
-                position: new Vector2(400, 250),
-                action: 'PVP'
+                text: 'Classic 8-Ball',
+                position: new Vector2(100, 100),
+                font: '100px Bookman',
+                color: 'white',
+                alignment: 'left' as CanvasTextAlign
             },
             {
-                text: 'One Player',
-                position: new Vector2(400, 350),
-                action: 'PVC'
+                text: `© ${new Date().getFullYear()} Chen Shmilovich`,
+                position: new Vector2(1250, 800),
+                font: '20px Bookman',
+                color: 'white',
+                alignment: 'left' as CanvasTextAlign
             }
-        ]
+        ],
+        BUTTONS: [
+            {
+                action: 'PVP',
+                position: new Vector2(400, 250),
+                sprite: 'TWO_PLAYERS_BUTTON',
+                spriteOnHover: 'TWO_PLAYERS_BUTTON_HOVERED'
+            },
+            {
+                action: 'PVC',
+                position: new Vector2(400, 350),
+                sprite: 'ONE_PLAYER_BUTTON',
+                spriteOnHover: 'ONE_PLAYER_BUTTON_HOVERED'
+            }
+        ],
+        SUB_MENUS: [] as Array<{
+            LABELS: Array<{
+                text: string;
+                position: Vector2;
+                font: string;
+                color: string;
+                alignment: CanvasTextAlign;
+            }>;
+            BUTTONS: Array<{
+                action: string;
+                position: Vector2;
+                sprite: string;
+                spriteOnHover: string;
+            }>;
+            SUB_MENUS: any[];
+        }>
     }
 };
