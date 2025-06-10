@@ -1,9 +1,8 @@
 const path = require('path');
 
 module.exports = {
-  entry: './src/game.ts',
-  mode: 'development',
-  devtool: 'inline-source-map',
+  entry: './src/Game.ts',
+  mode: 'production',
   module: {
     rules: [
       {
@@ -14,11 +13,10 @@ module.exports = {
     ]
   },
   resolve: {
-    extensions: ['.tsx', '.ts', '.js'],
-    modules: [path.resolve(__dirname, 'src'), 'node_modules']
+    extensions: [ '.tsx', '.ts', '.js' ]
   },
   output: {
     filename: 'bundle.js',
-    path: path.resolve(__dirname, 'public')
+    path: path.resolve(__dirname, 'dist')
   }
 };

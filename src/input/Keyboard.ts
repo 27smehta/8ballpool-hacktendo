@@ -2,8 +2,12 @@ import { ButtonState } from './button-state';
 
 class Keyboard_Singleton {
 
+    //------Members------//
+
     _keyStates : ButtonState[] = [];
     
+    //------Constructor------//
+
     constructor() {
         for(let i = 0 ; i < 256 ; i++ ) {
             this._keyStates[i] =  new ButtonState();
@@ -13,6 +17,8 @@ class Keyboard_Singleton {
         document.addEventListener('keydown', (event) => this.handleKeyDown(event));
     }
 
+    //------Private Methods------//
+
     private handleKeyUp(event: KeyboardEvent): void {
         this._keyStates[event.keyCode].down = false;
     }
@@ -21,6 +27,8 @@ class Keyboard_Singleton {
         this._keyStates[event.keyCode].pressed = true;
         this._keyStates[event.keyCode].down = true;
     }
+
+    //------Public Methods------//
 
     public reset() : void {
         for(let i = 0 ; i < 256 ; i++ ) {

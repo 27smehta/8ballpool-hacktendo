@@ -4,20 +4,17 @@
   "description": "Classic Pool Game TypeScript Adaptation",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "webpack --mode development",
-    "start": "http-server public",
-    "build": "webpack --mode production && mkdir public\\assets 2>nul & xcopy /E /I /Y dist\\assets public\\assets"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Shaurya Mehta",
+  "author": "Taha Ababou",
   "license": "ISC",
   "devDependencies": {
-    "@types/lodash": "^4.14.202",
-    "http-server": "^14.1.1",
-    "lodash": "^4.17.21",
-    "ts-loader": "^9.5.1",
-    "typescript": "^5.3.3",
-    "webpack": "^5.89.0",
-    "webpack-cli": "^5.1.4"
-  }
+    "ts-loader": "^5.3.3",
+    "typescript": "^3.3.3",
+    "webpack": "^4.29.3",
+    "webpack-cli": "^3.2.3",
+    "@types/lodash": "^4.14.137",
+    "lodash": "^4.17.15"
+  },
+  "dependencies": {}
 }

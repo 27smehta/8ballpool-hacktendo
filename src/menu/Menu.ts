@@ -31,33 +31,32 @@ export class Menu {
         return this._active;
     }
 
-    public get buttons(): MenuButton[] {
-        return this._buttons;
-    }
-
-    public get labels(): MenuLabel[] {
-        return this._labels;
-    }
-
-    public get subMenus(): Menu[] {
-        return this._subMenus;
-    }
-
-    constructor() {
-        this._labels = [];
-        this._buttons = [];
-        this._active = false;
-        this._subMenus = [];
-    }
-
     //------Public Methods------//
 
-    public init(menuActionsMap: Map<MenuActionType, IMenuCommand>, menuConfig: IMenuConfig): void {
-        this._labels = menuConfig.labels.map(labelConfig => new MenuLabel(labelConfig));
-        this._buttons = menuConfig.buttons.map(buttonConfig => new MenuButton(buttonConfig, menuActionsMap));
-        this._subMenus = (menuConfig.subMenus || []).map(subMenuConfig => {
+    public init(actionsMap: Map<MenuActionType, IMenuCommand>, config: IMenuConfig): void {
+        this._buttons = config.buttons.map((button: IButton) => {
+            return new MenuButton(
+                    actionsMap.get(button.action),
+                    button.value,
+                    button.position, 
+                    button.sprite, 
+                    button.spriteOnHover,
+                );
+        });
+
+        this._labels = config.labels.map((label: ILabel) => {
+            return new MenuLabel(
+                    label.text, 
+                    label.position, 
+                    label.font, 
+                    label.color, 
+                    label.alignment
+                );
+        });
+
+        this._subMenus = config.subMenus.map((menu: IMenuConfig) => {
             const subMenu = new Menu();
-            subMenu.init(menuActionsMap, subMenuConfig);
+            subMenu.init(actionsMap, menu);
             return subMenu;
         });
     }
@@ -67,14 +66,20 @@ export class Menu {
     }
 
     public update(): void {
-        this._buttons.forEach(button => button.handleInput());
+        if(this._active) {
+            this._buttons.forEach((button: MenuButton) => button.update());
+        }
+
+        this._subMenus.forEach((menu: Menu) => menu.update());
     }
 
     public draw(): void {
-        this._labels.forEach(label => label.draw());
-        this._buttons.forEach(button => button.draw());
-        if(this._subMenus.length > 0) {
-            this._subMenus.forEach(subMenu => subMenu.draw());
+        if(this._active){
+            Canvas2D.changeCursor(cursorConfig.default);
+            Canvas2D.drawImage(Assets.getSprite(sprites.paths.menuBackground))
+            this._labels.forEach((label: MenuLabel) => label.draw());
+            this._buttons.forEach((button: MenuButton) => button.draw());
         }
+        this._subMenus.forEach((menu: Menu) => menu.draw());
     }
 }
