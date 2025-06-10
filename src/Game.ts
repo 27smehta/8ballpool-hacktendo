@@ -13,6 +13,7 @@ import { Keyboard } from './input/Keyboard';
 import { Canvas2D } from './Canvas';
 import { Mouse } from './input/mouse';
 import { HomeScreen } from './menu/HomeScreen';
+import { Vector2 } from './geom/Vector2';
 
 export class Game {
     private _menuActionsMap: Map<MenuActionType, IMenuCommand>;
@@ -22,10 +23,15 @@ export class Game {
     private _isLoading: boolean;
     private _homeScreen: HomeScreen;
     private _showHomeScreen: boolean = true;
+    private _showControlsSplash: boolean = true;
 
     constructor() {
         this.initMenuActions();
         this._homeScreen = new HomeScreen(Canvas2D, Assets);
+        // Show controls splash for 3 seconds
+        setTimeout(() => {
+            this._showControlsSplash = false;
+        }, 3000);
     }
 
     private initMenuActions(): void {
@@ -110,7 +116,7 @@ export class Game {
     }
 
     private update(): void {
-        if (this._isLoading) return;
+        if (this._isLoading || this._showControlsSplash) return;
         this.handleInput();
         if (this._showHomeScreen) return;
         if (this._menu.active) {
@@ -125,6 +131,16 @@ export class Game {
     private draw(): void {
         if (this._isLoading) return;
         Canvas2D.clear();
+        if (this._showControlsSplash) {
+            // Draw controls.png centered
+            const controlsImg = Assets.getSprite('CONTROLS');
+            if (controlsImg) {
+                const x = (window.innerWidth - controlsImg.width) / 2;
+                const y = (window.innerHeight - controlsImg.height) / 2;
+                Canvas2D.drawImage(controlsImg, new Vector2(x, y), 0, Vector2.zero);
+            }
+            return;
+        }
         if (this._showHomeScreen) {
             this._homeScreen.draw();
             return;

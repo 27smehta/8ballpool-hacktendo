@@ -5,6 +5,7 @@ import { Canvas2D } from '../Canvas';
 import { GAME_CONFIG } from '../game.config';
 import { MenuActionType } from './MenuActionType';
 import { MenuLabel } from './MenuLabel';
+import { Vector2 } from '../geom/Vector2';
 
 export class Menu {
     private _labels: MenuLabel[];
@@ -62,7 +63,7 @@ export class Menu {
     public draw(): void {
         if(this._active){
             Canvas2D.changeCursor(GAME_CONFIG.DEFAULT_CURSOR);
-            Canvas2D.drawImage(Assets.getSprite(GAME_CONFIG.SPRITES.MAIN_MENU_BACKGROUND));
+            Canvas2D.drawImage(Assets.getSprite(GAME_CONFIG.SPRITES.MAIN_MENU_BACKGROUND), Vector2.zero, 0, Vector2.zero);
             this._labels.forEach((label: MenuLabel) => label.draw());
             this._buttons.forEach((button: MenuButton) => button.draw());
         }

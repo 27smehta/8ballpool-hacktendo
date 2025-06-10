@@ -20,13 +20,17 @@ interface MenuConfig {
 }
 
 export const GAME_CONFIG = {
-    CANVAS_WIDTH: 1600,
-    CANVAS_HEIGHT: 900,
-    LOADING_SCREEN_TIMEOUT: 2000,
+    CANVAS_WIDTH: 800,
+    CANVAS_HEIGHT: 600,
+    LOADING_SCREEN_TIMEOUT: 3000,
     LOADING_SCREEN_IMAGE_POSITION: new Vector2(0, 0),
     STICK_ORIGIN: new Vector2(0, 0),
     STICK_SHOT_ORIGIN: new Vector2(0, 0),
-    STICK_MAX_POWER: 100,
+    BALL_DIAMETER: 20,
+    CUSHION_WIDTH: 10,
+    GAME_WIDTH: 800,
+    TIMEOUT_TO_HIDE_STICK_AFTER_SHOT: 1000,
+    SHOOT_MOUSE_BUTTON: 0,
     SELECT_MOUSE_BUTTON: 0,
     BACK_TO_MENU_KEY: 27,
     SOUND_ON: true,
@@ -45,20 +49,20 @@ export const GAME_CONFIG = {
     ],
     OVERALL_SCORE_LABELS_ALLIGNMENT: 'center' as CanvasTextAlign,
     SPRITES: {
-        MAIN_MENU_BACKGROUND: 'MAIN_MENU_BACKGROUND',
-        TABLE: 'TABLE',
-        BALL: 'BALL',
-        STICK: 'STICK',
-        CONTROLS: 'CONTROLS',
-        TWO_PLAYERS_BUTTON: 'TWO_PLAYERS_BUTTON',
-        TWO_PLAYERS_BUTTON_HOVERED: 'TWO_PLAYERS_BUTTON_HOVERED',
-        ONE_PLAYER_BUTTON: 'ONE_PLAYER_BUTTON',
-        ONE_PLAYER_BUTTON_HOVERED: 'ONE_PLAYER_BUTTON_HOVERED',
+        MAIN_MENU_BACKGROUND: 'main_menu_background',
+        TABLE: 'table',
+        BALL: 'ball',
+        STICK: 'stick',
+        CONTROLS: 'controls',
+        TWO_PLAYERS_BUTTON: 'two_players_button',
+        TWO_PLAYERS_BUTTON_HOVERED: 'two_players_button_hovered',
+        ONE_PLAYER_BUTTON: 'one_player_button',
+        ONE_PLAYER_BUTTON_HOVERED: 'one_player_button_hovered',
         BACK_BUTTON: 'BACK_BUTTON',
         BACK_BUTTON_HOVERED: 'BACK_BUTTON_HOVERED',
-        MUTE_BUTTON: 'MUTE_BUTTON',
-        MUTE_BUTTON_HOVERED: 'MUTE_BUTTON_HOVERED',
-        MUTE_BUTTON_PRESSED: 'MUTE_BUTTON_PRESSED'
+        MUTE_BUTTON: 'mute_button',
+        MUTE_BUTTON_HOVERED: 'mute_button_hovered',
+        MUTE_BUTTON_PRESSED: 'mute_button_pressed'
     },
     SOUNDS: {
         STRIKE: 'STRIKE',
@@ -142,5 +146,6 @@ export const GAME_CONFIG = {
         ]
     } as MenuConfig,
     DEFAULT_CURSOR: 'default',
-    BUTTON_CURSOR: 'pointer'
+    BUTTON_CURSOR: 'pointer',
+    STICK_MAX_POWER: 100
 };

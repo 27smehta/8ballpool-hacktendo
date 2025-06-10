@@ -1,8 +1,8 @@
 import { IMenuCommand } from './commands/IMenuCommand';
 import { GAME_CONFIG } from './../game.config';
-import { Mouse } from './../input/Mouse';
+import { Mouse } from '../input/mouse';
 import { Canvas2D } from './../Canvas';
-import { Vector2 } from './../geom/Vector2';
+import { Vector2 } from '../geom/Vector2';
 import { Assets } from '../Assets';
 
 export class MenuButton {
@@ -21,7 +21,7 @@ export class MenuButton {
         private _spriteKey: string, 
         private _spriteOnHoverKey: string
     ) {
-        this._activeSprite = Assets.getSprite(GAME_CONFIG.SPRITES[this._spriteKey]);
+        this._activeSprite = Assets.getSprite(GAME_CONFIG.SPRITES[this._spriteKey as keyof typeof GAME_CONFIG.SPRITES]);
     }
 
     private isInsideButton(position: Vector2) {
@@ -34,8 +34,8 @@ export class MenuButton {
     public handleInput() {
         this.hovered = this.isInsideButton(Mouse.position);
         this._activeSprite = this._hovered ? 
-                            Assets.getSprite(GAME_CONFIG.SPRITES[this._spriteOnHoverKey]) : 
-                            Assets.getSprite(GAME_CONFIG.SPRITES[this._spriteKey]);
+                            Assets.getSprite(GAME_CONFIG.SPRITES[this._spriteOnHoverKey as keyof typeof GAME_CONFIG.SPRITES]) : 
+                            Assets.getSprite(GAME_CONFIG.SPRITES[this._spriteKey as keyof typeof GAME_CONFIG.SPRITES]);
 
         if(this._hovered && Mouse.isPressed(GAME_CONFIG.SELECT_MOUSE_BUTTON)) {
             Canvas2D.changeCursor(GAME_CONFIG.DEFAULT_CURSOR);
@@ -48,6 +48,6 @@ export class MenuButton {
     }
 
     public draw(): void {
-        Canvas2D.drawImage(this._activeSprite, this._position);
+        Canvas2D.drawImage(this._activeSprite, this._position, 0, Vector2.zero);
     }
 }

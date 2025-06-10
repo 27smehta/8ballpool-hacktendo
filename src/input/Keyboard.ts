@@ -3,6 +3,7 @@ import { MenuAction } from '../menu/MenuAction';
 import { Assets } from './../Assets';
 import { Canvas2D } from './../Canvas';
 import { GAME_CONFIG } from '../game.config';
+import { Vector2 } from '../geom/Vector2';
 
 export class Keyboard {
     private static _keys: { [key: string]: boolean } = {};
@@ -23,8 +24,8 @@ export class Keyboard {
             return new MenuButton(
                     actionsMap.get(button.action),
                     button.position, 
-                    Assets.getSprite(GAME_CONFIG.SPRITES[button.sprite]), 
-                    Assets.getSprite(GAME_CONFIG.SPRITES[button.spriteOnHover])
+                    Assets.getSprite(GAME_CONFIG.SPRITES[button.sprite as keyof typeof GAME_CONFIG.SPRITES]), 
+                    Assets.getSprite(GAME_CONFIG.SPRITES[button.spriteOnHover as keyof typeof GAME_CONFIG.SPRITES])
                 );
         });
     }
@@ -35,7 +36,7 @@ export class Keyboard {
 
     public draw(): void {
         Canvas2D.changeCursor(GAME_CONFIG.DEFAULT_CURSOR);
-        Canvas2D.drawImage(Assets.getSprite(GAME_CONFIG.SPRITES.MAIN_MENU_BACKGROUND))
+        Canvas2D.drawImage(Assets.getSprite(GAME_CONFIG.SPRITES.MAIN_MENU_BACKGROUND), Vector2.zero, 0, Vector2.zero);
         this._buttons.forEach((button: MenuButton) => button.draw());
     }
 

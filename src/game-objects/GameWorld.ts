@@ -1,14 +1,14 @@
-import { mapRange } from './../common/Helper';
-import { Referee } from './Referee';
+import { mapRange } from '../common/helper';
+import { Referee } from './referee';
 import { Player } from './Player';
-import { Stick } from './Stick';
+import { Stick } from './stick';
 import { Color } from '../common/Color';
 import { Vector2 } from '../geom/Vector2';
 import { GAME_CONFIG } from '../game.config';
 import { Assets } from '../Assets';
 import { Canvas2D } from '../Canvas';
 import { Ball } from './Ball';
-import { Mouse } from '../input/Mouse';
+import { Mouse } from '../input/mouse';
 import { State } from './State';
 
 export class GameWorld {
@@ -51,7 +51,7 @@ export class GameWorld {
     }
 
     private handleInput(): void {
-        if (Mouse.isPressed(GAME_CONFIG.SHOOT_MOUSE_BUTTON)) {
+        if (Mouse.isPressed(GAME_CONFIG.SELECT_MOUSE_BUTTON)) {
             this.shootCueBall();
         }
     }
@@ -282,7 +282,7 @@ export class GameWorld {
             for(let j = 0 ; j < this._players[i].matchScore ; j++){
                 const scorePosition: Vector2 = Vector2.copy(GAME_CONFIG.MATCH_SCORE_POSITIONS[i]).addToX(j * GAME_CONFIG.MATCH_SCORE_MARGIN);
                 const scoreSprite: HTMLImageElement = this._players[i].color === Color.red ? Assets.getSprite(GAME_CONFIG.SPRITES.RED_SCORE) : Assets.getSprite(GAME_CONFIG.SPRITES.YELLOW_SCORE);
-                Canvas2D.drawImage(scoreSprite, scorePosition);
+                Canvas2D.drawImage(scoreSprite, scorePosition, 0, Vector2.zero);
             }
         }    
     }
@@ -331,6 +331,17 @@ export class GameWorld {
     }
 
     public update(): void {
+        if (this._state === State.SHOOTING) {
+            if (Mouse.isPressed(GAME_CONFIG.SELECT_MOUSE_BUTTON)) {
+                this._stick.shoot();
+            }
+            if (this._stick.movable) {
+                this._stick.update();
+            }
+            setTimeout(() => {
+                this._stick.visible = false;
+            }, GAME_CONFIG.TIMEOUT_TO_HIDE_STICK_AFTER_SHOT);
+        }
         if(this._turnState.ballInHand) {
             this.handleBallInHand();
             return;
@@ -348,7 +359,7 @@ export class GameWorld {
     }
 
     public draw(): void {
-        Canvas2D.drawImage(Assets.getSprite(GAME_CONFIG.SPRITES.TABLE));
+        Canvas2D.drawImage(Assets.getSprite(GAME_CONFIG.SPRITES.TABLE as keyof typeof GAME_CONFIG.SPRITES), Vector2.zero, 0, Vector2.zero);
         this.drawCurrentPlayerLabel();
         this.drawMatchScores();
         this.drawOverallScores();
