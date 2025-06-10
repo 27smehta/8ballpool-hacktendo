@@ -28,6 +28,18 @@ class GameInitializer {
         this._game = new Game();
         await this._game.init();
         this._initialized = true;
+
+        // Add Controls button logic
+        const controlsBtn = document.getElementById('controls-btn');
+        if (controlsBtn && this._game) {
+            controlsBtn.addEventListener('click', () => {
+                // Show controls overlay for 3 seconds
+                (this._game as any)._showControlsSplash = true;
+                setTimeout(() => {
+                    (this._game as any)._showControlsSplash = false;
+                }, 3000);
+            });
+        }
     }
 
     public get game(): Game {
