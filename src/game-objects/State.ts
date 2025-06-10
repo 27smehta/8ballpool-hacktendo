@@ -1,14 +1,10 @@
-import { Ball } from './Ball';
-import { Color } from "../common/Color";
-
-export enum State {
-    SHOOTING,
-    MOVING,
-    PLACING_BALL,
-    GAME_OVER
-}
+import { Ball } from './ball';
+import { Color } from "../common/color";
 
 export class State {
+
+    //------Properties------//
+
     public firstCollidedBallColor: Color;
     public pocketedBalls: Ball[] = [];
     public ballInHand = false;

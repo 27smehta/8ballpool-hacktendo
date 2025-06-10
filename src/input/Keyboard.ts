@@ -1,63 +1,48 @@
-import { MenuButton } from '../menu/MenuButton';
-import { MenuAction } from '../menu/MenuAction';
-import { Assets } from './../Assets';
-import { Canvas2D } from './../Canvas';
-import { GAME_CONFIG } from '../game.config';
-import { Vector2 } from '../geom/Vector2';
+import { ButtonState } from './button-state';
 
-export class Keyboard {
-    private static _keys: { [key: string]: boolean } = {};
+class Keyboard_Singleton {
 
-    private _buttons: MenuButton[]
-    private _active: boolean;
+    //------Members------//
 
-    public set active(value: boolean) {
-        this._active = value;
+    _keyStates : ButtonState[] = [];
+    
+    //------Constructor------//
+
+    constructor() {
+        for(let i = 0 ; i < 256 ; i++ ) {
+            this._keyStates[i] =  new ButtonState();
+        }
+        
+        document.addEventListener('keyup', (event) => this.handleKeyUp(event));
+        document.addEventListener('keydown', (event) => this.handleKeyDown(event));
     }
 
-    public get active(): boolean {
-        return this._active;
+    //------Private Methods------//
+
+    private handleKeyUp(event: KeyboardEvent): void {
+        this._keyStates[event.keyCode].down = false;
     }
 
-    constructor(actionsMap: Map<MenuAction, () => void>) {
-        this._buttons = GAME_CONFIG.MAIN_MENU_BUTTONS.map((button: any) => {
-            return new MenuButton(
-                    actionsMap.get(button.action),
-                    button.position, 
-                    Assets.getSprite(GAME_CONFIG.SPRITES[button.sprite as keyof typeof GAME_CONFIG.SPRITES]), 
-                    Assets.getSprite(GAME_CONFIG.SPRITES[button.spriteOnHover as keyof typeof GAME_CONFIG.SPRITES])
-                );
-        });
+    private handleKeyDown(event: KeyboardEvent): void {
+        this._keyStates[event.keyCode].pressed = true;
+        this._keyStates[event.keyCode].down = true;
     }
 
-    public update(): void {
-        this._buttons.forEach((button: MenuButton) => button.update());
+    //------Public Methods------//
+
+    public reset() : void {
+        for(let i = 0 ; i < 256 ; i++ ) {
+            this._keyStates[i].pressed = false;
+        }
     }
 
-    public draw(): void {
-        Canvas2D.changeCursor(GAME_CONFIG.DEFAULT_CURSOR);
-        Canvas2D.drawImage(Assets.getSprite(GAME_CONFIG.SPRITES.MAIN_MENU_BACKGROUND), Vector2.zero, 0, Vector2.zero);
-        this._buttons.forEach((button: MenuButton) => button.draw());
+    public isDown(keyCode: number): boolean {
+        return this._keyStates[keyCode].down;
     }
-
-    public static isPressed(key: string): boolean {
-        return this._keys[key] || false;
-    }
-
-    public static isDown(key: string): boolean {
-        return this._keys[key] || false;
-    }
-
-    public static reset(): void {
-        this._keys = {};
-    }
-
-    public static init(): void {
-        window.addEventListener('keydown', (e) => {
-            Keyboard._keys[e.key] = true;
-        });
-        window.addEventListener('keyup', (e) => {
-            Keyboard._keys[e.key] = false;
-        });
+    
+    public isPressed(keyCode: number): boolean {
+        return this._keyStates[keyCode].pressed;
     }
 }
+
+export const Keyboard = new Keyboard_Singleton();

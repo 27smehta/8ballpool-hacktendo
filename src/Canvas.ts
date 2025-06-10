@@ -1,16 +1,19 @@
-import { GAME_CONFIG } from './game.config';
-import { Vector2 } from './geom/Vector2';
+import { IVector2 } from './game.config.type';
+import { GameConfig } from './game.config';
+import { Vector2 } from './geom/vector2';
 
 class Canvas2D_Singleton {
 
+    //------Members------//
 
     private _canvasContainer: HTMLElement;
     private _canvas : HTMLCanvasElement;
     private _context : CanvasRenderingContext2D;
-    private _dpi: number;
     private _scale: Vector2;
     private _offset: Vector2;
 
+    //------Properties------//
+    
     public get scaleX() {
         return this._scale.x;
     }
@@ -27,6 +30,7 @@ class Canvas2D_Singleton {
         return this._offset.y;
     }
 
+    //------Constructor------//
 
     constructor(canvas : HTMLCanvasElement, canvasContainer: HTMLElement) {
         this._canvasContainer = canvasContainer;
@@ -35,11 +39,12 @@ class Canvas2D_Singleton {
         this.resizeCanvas();
     }
 
+    //------Public Methods------//
 
     public resizeCanvas(): void {
         
-        const originalCanvasWidth = GAME_CONFIG.CANVAS_WIDTH;
-        const originalCanvasHeight = GAME_CONFIG.CANVAS_HEIGHT;
+        const originalCanvasWidth = GameConfig.gameSize.x;
+        const originalCanvasHeight = GameConfig.gameSize.y;
         const widthToHeight: number = originalCanvasWidth / originalCanvasHeight;
 
         let newHeight: number = window.innerHeight;
@@ -67,7 +72,6 @@ class Canvas2D_Singleton {
         if (this._canvas.offsetParent) {
             this._offset = new Vector2(this._canvas.offsetLeft, this._canvas.offsetTop);
         }
-
     }
 
 
@@ -77,9 +81,9 @@ class Canvas2D_Singleton {
 
     public drawImage(
             sprite: HTMLImageElement,
-            position: Vector2 = Vector2.zero, 
+            position: IVector2 = { x: 0, y: 0 }, 
             rotation: number = 0, 
-            origin: Vector2 = Vector2.zero
+            origin: IVector2 = { x: 0, y: 0 }
         ) {    
         this._context.save();
         this._context.scale(this._scale.x, this._scale.y);
@@ -89,46 +93,24 @@ class Canvas2D_Singleton {
         this._context.restore();
     }
 
-    public changeCursor(cursor: string): void {
-        this._canvas.style.cursor = cursor;
-    }
 
-
-    public drawText(text: string, font: string, color: string, position: Vector2, textAlign: CanvasTextAlign = 'left'): void {
+    public drawText(text: string, font:string, color: string, position: IVector2, textAlign: string = 'left'): void {
         this._context.save();
         this._context.scale(this._scale.x, this._scale.y);
         this._context.fillStyle = color;
         this._context.font = font;
-        this._context.textAlign = textAlign;
+        this._context.textAlign = textAlign as CanvasTextAlign;
         this._context.fillText(text, position.x, position.y);
         this._context.restore();
     }
 
-    public drawRect(x: number, y: number, width: number, height: number, color: string): void {
-        this._context.save();
-        this._context.scale(this._scale.x, this._scale.y);
-        this._context.fillStyle = color;
-        this._context.fillRect(x, y, width, height);
-        this._context.restore();
+    public changeCursor(cursor: string): void {
+        this._canvas.style.cursor = cursor;
     }
 }
 
-let Canvas2D: Canvas2D_Singleton;
+const canvas : HTMLCanvasElement = document.getElementById('screen') as HTMLCanvasElement;
+const container : HTMLElement = document.getElementById('gameArea') as HTMLElement;
+export const Canvas2D = new Canvas2D_Singleton(canvas, container);
 
-function initializeCanvas() {
-    const canvas = document.getElementById('screen') as HTMLCanvasElement;
-    const container = document.getElementById('gameArea') as HTMLElement;
-    if (canvas && container) {
-        Canvas2D = new Canvas2D_Singleton(canvas, container);
-        window.addEventListener('resize', Canvas2D.resizeCanvas.bind(Canvas2D));
-    }
-}
-
-// Initialize canvas after DOM is loaded
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeCanvas);
-} else {
-    initializeCanvas();
-}
-
-export { Canvas2D };
+window.addEventListener('resize', Canvas2D.resizeCanvas.bind(Canvas2D));

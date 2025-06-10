@@ -2,18 +2,13 @@ const path = require('path');
 
 module.exports = {
   entry: './src/Game.ts',
-  devtool: 'inline-source-map',
-  mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
+  mode: 'production',
   module: {
     rules: [
       {
         test: /\.tsx?$/,
         use: 'ts-loader',
         exclude: /node_modules/
-      },
-      {
-        test: /\.(png|svg|jpg|jpeg|gif)$/i,
-        type: 'asset/resource',
       }
     ]
   },
@@ -22,10 +17,6 @@ module.exports = {
   },
   output: {
     filename: 'bundle.js',
-    path: path.resolve(__dirname, 'public'),
-    clean: true
-  },
-  optimization: {
-    minimize: true
+    path: path.resolve(__dirname, 'dist')
   }
 };
