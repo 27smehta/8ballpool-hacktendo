@@ -1,36 +1,24 @@
-import { ButtonState } from './button-state';
-import { Canvas2D } from '../canvas';
-import { Vector2 } from '../geom/vector2';
+import { ButtonState } from './ButtonState';
+import { Canvas2D } from './../Canvas';
+import { Vector2 } from './../geom/Vector2';
 
 class Mouse_Singleton {
-
-    //------Members------//
-
     private _buttonStates: ButtonState[] = [];
     private _position: Vector2;
-
-    //------Properties------//
 
     public get position() {
         return Vector2.copy(this._position);
     }
 
-    //------Constructor------//
-
     constructor() {
-
         for(let i = 0 ; i < 3 ; i ++ ) {
             this._buttonStates[i] = new ButtonState();
         }
-
         this._position = Vector2.zero;
-
         document.addEventListener('mousemove', (event) => this.handleMouseMove(event));
         document.addEventListener('mousedown', (event) => this.handleMouseDown(event));
         document.addEventListener('mouseup', (event) => this.handleMouseUp(event));
     }
-
-    //------Private Methods------//
 
     private handleMouseMove(event: MouseEvent): void {
         const mouseX: number = (event.pageX - Canvas2D.offsetX) / Canvas2D.scaleX;
@@ -46,8 +34,6 @@ class Mouse_Singleton {
     private handleMouseUp(event: MouseEvent) {
         this._buttonStates[event.button].down = false;
     }
-
-    //------Public Methods------//
 
     public reset() : void {
         for(let i = 0 ; i < 3 ; i++ ) {

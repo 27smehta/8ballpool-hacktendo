@@ -1,13 +1,11 @@
-import { State } from './state';
-import { Color } from '../common/color';
-import { Ball } from "./ball";
-import { Player } from "./player";
+import { State } from './State';
+import { Color } from './../common/Color';
+import { Ball } from "./Ball";
+import { Player } from "./Player";
 
 export class Referee {
 
-    //------Private Methods------//
-
-    private isValidFirstTouch(player: Player, collidedBallColor: Color, somePocketed: boolean): boolean {
+    private isValidFirstTouch(player: Player, collidedBallColor: Color): boolean {
 
         if(!collidedBallColor) {
             return false;
@@ -17,7 +15,6 @@ export class Referee {
         }
 
         return player.color === collidedBallColor || 
-               (player.matchScore === 1 && somePocketed && collidedBallColor !== Color.black) ||
                (player.matchScore === 7 && collidedBallColor === Color.black) ||
                (player.matchScore === 8 && collidedBallColor === Color.black); 
     }
@@ -41,13 +38,10 @@ export class Referee {
         }
     }
     
-    //------Public Methods------//
-
     public isValidTurn(player: Player, state: State): boolean {
-        return this.isValidFirstTouch(player, state.firstCollidedBallColor, state.pocketedBalls.length > 0) &&
+        return this.isValidFirstTouch(player, state.firstCollidedBallColor) &&
                this.isValidPocketedBalls(player, state.pocketedBalls);
     }
-
     public isGameOver(currentPlayer: Player, cueBall: Ball, eightBall: Ball): boolean {
         return !eightBall.visible || 
                (!cueBall.visible && currentPlayer.matchScore === 7) ||

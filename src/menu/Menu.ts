@@ -1,27 +1,16 @@
-import { IMenuConfig, IButton, ILabel, ICursorConfig, IAssetsConfig } from './../game.config.type';
-import { IMenuCommand } from './commands/menu-command';
-import { MenuButton } from './menu-button';
-import { Assets } from '../assets';
-import { Canvas2D } from '../canvas';
-import { GameConfig } from '../game.config';
-import { MenuActionType } from './menu-action-type';
-import { MenuLabel } from './menu-label';
-
-//------Configurations------//
-
-const cursorConfig: ICursorConfig = GameConfig.cursor;
-const sprites: IAssetsConfig = GameConfig.sprites;
+import { IMenuCommand } from './commands/IMenuCommand';
+import { MenuButton } from './MenuButton';
+import { Assets } from '../Assets';
+import { Canvas2D } from '../Canvas';
+import { GAME_CONFIG } from '../game.config';
+import { MenuActionType } from './MenuActionType';
+import { MenuLabel } from './MenuLabel';
 
 export class Menu {
-
-    //------Members------//
-
     private _labels: MenuLabel[];
-    private _buttons: MenuButton[]
+    private _buttons: MenuButton[];
     private _active: boolean;
-    private _subMenus: Menu[]
-
-    //------Properties------//
+    private _subMenus: Menu[];
 
     public set active(value: boolean) {
         this._active = value;
@@ -31,30 +20,28 @@ export class Menu {
         return this._active;
     }
 
-    //------Public Methods------//
-
-    public init(actionsMap: Map<MenuActionType, IMenuCommand>, config: IMenuConfig): void {
-        this._buttons = config.buttons.map((button: IButton) => {
+    public init(actionsMap: Map<MenuActionType, IMenuCommand>, config: any): void {
+        this._buttons = config.BUTTONS.map((button: any) => {
             return new MenuButton(
-                    actionsMap.get(button.action),
-                    button.value,
-                    button.position, 
-                    button.sprite, 
-                    button.spriteOnHover,
-                );
+                actionsMap.get(button.action),
+                button.value,
+                button.position, 
+                button.sprite, 
+                button.spriteOnHover
+            );
         });
 
-        this._labels = config.labels.map((label: ILabel) => {
+        this._labels = config.LABELS.map((label: any) => {
             return new MenuLabel(
-                    label.text, 
-                    label.position, 
-                    label.font, 
-                    label.color, 
-                    label.alignment
-                );
+                label.text, 
+                label.position, 
+                label.font, 
+                label.color, 
+                label.alignment
+            );
         });
 
-        this._subMenus = config.subMenus.map((menu: IMenuConfig) => {
+        this._subMenus = config.SUB_MENUS.map((menu: any) => {
             const subMenu = new Menu();
             subMenu.init(actionsMap, menu);
             return subMenu;
@@ -69,17 +56,16 @@ export class Menu {
         if(this._active) {
             this._buttons.forEach((button: MenuButton) => button.update());
         }
-
         this._subMenus.forEach((menu: Menu) => menu.update());
     }
 
     public draw(): void {
         if(this._active){
-            Canvas2D.changeCursor(cursorConfig.default);
-            Canvas2D.drawImage(Assets.getSprite(sprites.paths.menuBackground))
+            Canvas2D.changeCursor(GAME_CONFIG.DEFAULT_CURSOR);
+            Canvas2D.drawImage(Assets.getSprite(GAME_CONFIG.SPRITES.MAIN_MENU_BACKGROUND));
             this._labels.forEach((label: MenuLabel) => label.draw());
             this._buttons.forEach((button: MenuButton) => button.draw());
         }
         this._subMenus.forEach((menu: Menu) => menu.draw());
     }
-}
+} 

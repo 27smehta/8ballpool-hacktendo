@@ -1,10 +1,7 @@
-import { Ball } from './ball';
-import { Color } from "../common/color";
+import { Ball } from './Ball';
+import { Color } from "../common/Color";
 
 export class State {
-
-    //------Properties------//
-
     public firstCollidedBallColor: Color;
     public pocketedBalls: Ball[] = [];
     public ballInHand = false;

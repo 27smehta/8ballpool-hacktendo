@@ -1,20 +1,11 @@
-import { IVector2 } from '../game.config.type';
-
-export class Vector2 implements IVector2 {
-
-    //------Members------//
-
+export class Vector2 {
     private _x: number;
     private _y: number;
-
-    //------Constructor------//
 
     constructor(x: number, y: number) {
         this._x = x;
         this._y = y;
     }
-
-    //------Properties------//
 
     get x() {
         return this._x;
@@ -32,9 +23,7 @@ export class Vector2 implements IVector2 {
         return Math.sqrt(Math.pow(this._x, 2) + Math.pow(this._y, 2));
     }
 
-    //------Public Methods------//
-
-    public static copy(vector: IVector2) {
+    public static copy(vector: Vector2) {
         return new Vector2(vector.x, vector.y);
     }
 
