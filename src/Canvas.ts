@@ -11,6 +11,7 @@ class Canvas2D_Singleton {
     private _context : CanvasRenderingContext2D;
     private _scale: Vector2;
     private _offset: Vector2;
+    private static _instance: Canvas2D_Singleton | null = null;
 
     //------Properties------//
     
@@ -48,7 +49,7 @@ class Canvas2D_Singleton {
 
     //------Constructor------//
 
-    constructor() {
+    private constructor() {
         const container = document.getElementById('canvasContainer');
         if (!container) {
             throw new Error('Canvas container element not found');
@@ -75,6 +76,13 @@ class Canvas2D_Singleton {
     }
 
     //------Public Methods------//
+
+    public static getInstance(): Canvas2D_Singleton {
+        if (!Canvas2D_Singleton._instance) {
+            Canvas2D_Singleton._instance = new Canvas2D_Singleton();
+        }
+        return Canvas2D_Singleton._instance;
+    }
 
     public resizeCanvas(): void {
         
@@ -144,6 +152,11 @@ class Canvas2D_Singleton {
     }
 }
 
-export const Canvas2D = new Canvas2D_Singleton();
+// Initialize canvas after DOM is loaded
+let Canvas2D: Canvas2D_Singleton;
+document.addEventListener('DOMContentLoaded', () => {
+    Canvas2D = Canvas2D_Singleton.getInstance();
+    window.addEventListener('resize', () => Canvas2D.resizeCanvas());
+});
 
-window.addEventListener('resize', () => Canvas2D.resizeCanvas());
+export { Canvas2D };

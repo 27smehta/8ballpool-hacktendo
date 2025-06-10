@@ -24,12 +24,13 @@ export class Game {
 
     //------Members------//
 
-    private _menuActionsMap: Map<MenuActionType, IMenuCommand>;
+    private _menuActionsMap: Map<MenuActionType, IMenuCommand> = new Map();
     private _previousMenus: Menu[] = [];
     private _menu: Menu = new Menu();
-    private _poolGame: GameWorld;
-    private _isLoading: boolean;
-    private _inGame: boolean;
+    private _poolGame: GameWorld = new GameWorld();
+    private _isLoading: boolean = false;
+    private _inGame: boolean = false;
+    private _initialized: boolean = false;
 
     //------Private Methods------//
 
@@ -74,7 +75,7 @@ export class Game {
     }
 
     private update(): void {
-        if (this._isLoading) return;
+        if (!this._initialized || this._isLoading) return;
         this.handleInput();
         this._menu.active ? this._menu.update() : this._poolGame.update();
         Keyboard.reset();
@@ -82,7 +83,7 @@ export class Game {
     }
 
     private draw(): void {
-        if (this._isLoading) return;
+        if (!this._initialized || this._isLoading) return;
         if(AI.finishedSession){
             Canvas2D.clear();
             this._menu.active ? this._menu.draw() : this._poolGame.draw();
@@ -100,12 +101,25 @@ export class Game {
     //------Public Methods------//
 
     public async init(): Promise<void> {
+        // Wait for Canvas to be initialized
+        await new Promise<void>((resolve) => {
+            const checkCanvas = () => {
+                if (Canvas2D) {
+                    resolve();
+                } else {
+                    setTimeout(checkCanvas, 100);
+                }
+            };
+            checkCanvas();
+        });
+
         await Assets.loadGameAssets();
 
         this.initMenuActions();
         this.initMainMenu();
         this._menu.active = true;
         this._poolGame = new GameWorld();
+        this._initialized = true;
         this.gameLoop();
     }
 
@@ -115,8 +129,11 @@ export class Game {
                 this._menu.active = false;
                 this._previousMenus.push(this._menu);
             }
-            this._menu = this._menu.getSubMenu(index);
-            this._menu.active = true;   
+            const subMenu = this._menu.getSubMenu(index);
+            if (subMenu) {
+                this._menu = subMenu;
+                this._menu.active = true;
+            }
         }, GameConfig.timeoutToLoadSubMenu);
     }
     
@@ -124,8 +141,11 @@ export class Game {
         if(this._previousMenus.length > 0) {
             setTimeout(() => {
                 this._menu.active = false;
-                this._menu = this._previousMenus.pop();
-                this._menu.active = true; 
+                const previousMenu = this._previousMenus.pop();
+                if (previousMenu) {
+                    this._menu = previousMenu;
+                    this._menu.active = true;
+                }
             }, GameConfig.timeoutToLoadSubMenu);
         }
     }
@@ -140,5 +160,8 @@ export class Game {
     }
 }
 
-const game = new Game();
-game.init();
+// Initialize game after DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    const game = new Game();
+    game.init();
+});
