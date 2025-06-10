@@ -11,7 +11,8 @@ import { Assets } from './Assets';
 import { GameWorld } from './game-objects/GameWorld';
 import { Keyboard } from './input/Keyboard';
 import { Canvas2D } from './Canvas';
-import { Mouse } from './input/Mouse';
+import { Mouse } from './input/mouse';
+import { HomeScreen } from './menu/HomeScreen';
 
 export class Game {
     private _menuActionsMap: Map<MenuActionType, IMenuCommand>;
@@ -19,9 +20,12 @@ export class Game {
     private _menu: Menu = new Menu();
     private _poolGame: GameWorld;
     private _isLoading: boolean;
+    private _homeScreen: HomeScreen;
+    private _showHomeScreen: boolean = true;
 
     constructor() {
         this.initMenuActions();
+        this._homeScreen = new HomeScreen(Canvas2D, Assets);
     }
 
     private initMenuActions(): void {
@@ -87,7 +91,19 @@ export class Game {
     }
 
     private handleInput(): void {
-        if (!this._menu.active && Keyboard.isPressed(GAME_CONFIG.BACK_TO_MENU_KEY)) {
+        if (this._showHomeScreen) {
+            if (Mouse.isPressed(0)) {
+                const mousePos = Mouse.position;
+                if (this._homeScreen.handleClick(mousePos.x, mousePos.y)) {
+                    this._showHomeScreen = false;
+                    this.initMainMenu();
+                    this._menu.active = true;
+                }
+            }
+            return;
+        }
+
+        if (!this._menu.active && Keyboard.isPressed('Escape')) {
             this.initMainMenu();
             this._menu.active = true;
         }
@@ -96,7 +112,12 @@ export class Game {
     private update(): void {
         if (this._isLoading) return;
         this.handleInput();
-        this._menu.active ? this._menu.update() : this._poolGame.update();
+        if (this._showHomeScreen) return;
+        if (this._menu.active) {
+            this._menu.update();
+        } else {
+            this._poolGame.update();
+        }
         Keyboard.reset();
         Mouse.reset();
     }
@@ -104,7 +125,15 @@ export class Game {
     private draw(): void {
         if (this._isLoading) return;
         Canvas2D.clear();
-        this._menu.active ? this._menu.draw() : this._poolGame.draw();
+        if (this._showHomeScreen) {
+            this._homeScreen.draw();
+            return;
+        }
+        if (this._menu.active) {
+            this._menu.draw();
+        } else {
+            this._poolGame.draw();
+        }
     }
 
     private gameLoop(): void {
@@ -126,7 +155,7 @@ export class Game {
     public executeMenuAction(action: MenuActionType, value?: number): void {
         const command = this._menuActionsMap.get(action);
         if (command) {
-            command.execute();
+            command.execute(value);
         }
     }
 }

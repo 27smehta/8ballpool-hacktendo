@@ -103,6 +103,14 @@ class Canvas2D_Singleton {
         this._context.fillText(text, position.x, position.y);
         this._context.restore();
     }
+
+    public drawRect(x: number, y: number, width: number, height: number, color: string): void {
+        this._context.save();
+        this._context.scale(this._scale.x, this._scale.y);
+        this._context.fillStyle = color;
+        this._context.fillRect(x, y, width, height);
+        this._context.restore();
+    }
 }
 
 let Canvas2D: Canvas2D_Singleton;
