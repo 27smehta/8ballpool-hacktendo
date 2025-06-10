@@ -30,12 +30,47 @@ class Canvas2D_Singleton {
         return this._offset.y;
     }
 
+    public get width() {
+        return this._canvas.width;
+    }
+
+    public get height() {
+        return this._canvas.height;
+    }
+
+    public get context() {
+        return this._context;
+    }
+
+    public get canvas() {
+        return this._canvas;
+    }
+
     //------Constructor------//
 
-    constructor(canvas : HTMLCanvasElement, canvasContainer: HTMLElement) {
-        this._canvasContainer = canvasContainer;
+    constructor() {
+        const container = document.getElementById('canvasContainer');
+        if (!container) {
+            throw new Error('Canvas container element not found');
+        }
+        this._canvasContainer = container;
+
+        const canvas = document.getElementById('canvas') as HTMLCanvasElement;
+        if (!canvas) {
+            throw new Error('Canvas element not found');
+        }
         this._canvas = canvas;
-        this._context = this._canvas.getContext('2d');
+
+        const context = this._canvas.getContext('2d');
+        if (!context) {
+            throw new Error('Could not get 2D context from canvas');
+        }
+        this._context = context;
+
+        this._scale = new Vector2(1, 1);
+        this._offset = new Vector2(0, 0);
+
+        // Initialize canvas size
         this.resizeCanvas();
     }
 
@@ -109,8 +144,6 @@ class Canvas2D_Singleton {
     }
 }
 
-const canvas : HTMLCanvasElement = document.getElementById('screen') as HTMLCanvasElement;
-const container : HTMLElement = document.getElementById('gameArea') as HTMLElement;
-export const Canvas2D = new Canvas2D_Singleton(canvas, container);
+export const Canvas2D = new Canvas2D_Singleton();
 
-window.addEventListener('resize', Canvas2D.resizeCanvas.bind(Canvas2D));
+window.addEventListener('resize', () => Canvas2D.resizeCanvas());
