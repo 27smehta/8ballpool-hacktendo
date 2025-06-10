@@ -3,7 +3,12 @@ import { IMenuCommand } from './menu-command';
 import { Game } from '../../game';
 
 export class PVCCommand implements IMenuCommand {
+   
+    //------Constructor------//
+
     constructor(private _game: Game) {}
+
+    //------Public Methods------//
     
     public execute(iterationsValue: number): void {
         GameConfig.ai.playerIndex = Math.floor(Math.random() * 2);

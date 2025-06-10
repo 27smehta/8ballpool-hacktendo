@@ -6,17 +6,26 @@ import { Canvas2D } from '../canvas';
 import { Assets } from '../assets';
 import { IAssetsConfig } from '../game.config.type';
 
+//------Configurations------//
+
 const inputConfig: IInputConfig = GameConfig.input;
 const cursorConfig: ICursorConfig = GameConfig.cursor;
 const sprites: IAssetsConfig = GameConfig.sprites;
 
 export class MenuButton {
+
+    //------Members------//
+
     private _activeSprite: HTMLImageElement;
     private _hovered: boolean;
+
+    //------Properties------//
 
     private set hovered(value: boolean) {
         this._hovered = value;
     }
+
+    //------Constructor------//
 
     constructor(
         private _command: IMenuCommand,
@@ -28,14 +37,19 @@ export class MenuButton {
         this._activeSprite = Assets.getSprite(sprites.paths[this._spriteKey]);
     }
 
+    //------Private Methods------//
+
     private isInsideButton(position: IVector2) {
         return position.x > this._position.x &&
                position.x < this._position.x + this._activeSprite.width &&
                position.y > this._position.y &&
                position.y < this._position.y + this._activeSprite.height;
     }
+
+    //------Public Methods------//
     
     public handleInput() {
+
         this.hovered = this.isInsideButton(Mouse.position);
         this._activeSprite = this._hovered ? 
                              Assets.getSprite(sprites.paths[this._spriteOnHoverKey]) : 

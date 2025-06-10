@@ -1,5 +1,4 @@
 const path = require('path');
-const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   entry: './src/Game.ts',
@@ -14,24 +13,10 @@ module.exports = {
     ]
   },
   resolve: {
-    extensions: ['.tsx', '.ts', '.js']
+    extensions: [ '.tsx', '.ts', '.js' ]
   },
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist')
-  },
-  plugins: [
-    new CopyPlugin({
-      patterns: [
-        { 
-          from: 'src/assets/sprites',
-          to: 'assets/sprites'
-        },
-        {
-          from: 'src/assets/sounds',
-          to: 'assets/sounds'
-        }
-      ]
-    })
-  ]
+  }
 };

@@ -1,6 +1,7 @@
 import { ButtonState } from './button-state';
 
 class Keyboard_Singleton {
+
     _keyStates : ButtonState[] = [];
     
     constructor() {

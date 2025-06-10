@@ -2,13 +2,19 @@ import { IVector2 } from '../game.config.type';
 
 export class Vector2 implements IVector2 {
 
+    //------Members------//
+
     private _x: number;
     private _y: number;
+
+    //------Constructor------//
 
     constructor(x: number, y: number) {
         this._x = x;
         this._y = y;
     }
+
+    //------Properties------//
 
     get x() {
         return this._x;
@@ -25,6 +31,8 @@ export class Vector2 implements IVector2 {
     get length(): number {
         return Math.sqrt(Math.pow(this._x, 2) + Math.pow(this._y, 2));
     }
+
+    //------Public Methods------//
 
     public static copy(vector: IVector2) {
         return new Vector2(vector.x, vector.y);

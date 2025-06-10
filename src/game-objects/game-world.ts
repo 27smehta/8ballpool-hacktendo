@@ -13,6 +13,7 @@ import { Ball } from './ball';
 import { Mouse } from '../input/mouse';
 import { State } from './state';
 
+//------Configurations------//
 
 const physicsConfig: IPhysicsConfig = GameConfig.physics;
 const inputConfig: IInputConfig = GameConfig.input;
@@ -27,6 +28,7 @@ const sounds: IAssetsConfig = GameConfig.sounds;
 
 export class GameWorld {
 
+    //------Members------//
 
     private _stick: Stick;
     private _cueBall: Ball;
@@ -37,6 +39,7 @@ export class GameWorld {
     private _turnState: State;
     private _referee: Referee;
 
+    //------Properties------//
 
     public get currentPlayer(): Player {
         return this._players[this._currentPlayerIndex];
@@ -70,11 +73,13 @@ export class GameWorld {
         return this._turnState.pocketedBalls.length;
     }
 
+    //------Constructor------//
 
     constructor() {
         this.initMatch();
     }
 
+    //------Private Methods------//
 
     private getBallsByColor(color: Color): Ball[] {
         return this._balls.filter((ball: Ball) => ball.color === color);
@@ -127,6 +132,7 @@ export class GameWorld {
     }
 
     private resolveBallCollisionWithCushion(ball: Ball): void {
+
         let collided: boolean = false;
 
         if(this.isBallPosOutsideTopBorder(ball.nextPosition)) {
@@ -152,35 +158,47 @@ export class GameWorld {
     }
 
     private resolveBallsCollision (first: Ball, second: Ball): boolean {
+
         if(!first.visible || !second.visible){
             return false;
         }
     
+        // Find a normal vector
         const n: Vector2 = first.position.subtract(second.position);
+    
+        // Find distance
         const dist: number = n.length;
     
         if(dist > ballConfig.diameter){
             return false;
         }
     
+        // Find minimum translation distance
         const mtd = n.mult((ballConfig.diameter - dist) / dist);
     
+        // Push-pull balls apart
         first.position = first.position.add(mtd.mult(0.5));
         second.position = second.position.subtract(mtd.mult(0.5));
     
+        // Find unit normal vector
         const un = n.mult(1/n.length);
+    
+        // Find unit tangent vector
         const ut = new Vector2(-un.y, un.x);
     
+        // Project velocities onto the unit normal and unit tangent vectors
         const v1n: number = un.dot(first.velocity);
         const v1t: number = ut.dot(first.velocity);
         const v2n: number = un.dot(second.velocity);
         const v2t: number = ut.dot(second.velocity);
     
+        // Convert the scalar normal and tangential velocities into vectors
         const v1nTag: Vector2 = un.mult(v2n);
         const v1tTag: Vector2 = ut.mult(v1t);
         const v2nTag: Vector2 = un.mult(v1n);
         const v2tTag: Vector2 = ut.mult(v2t);
     
+        // Update velocities
         first.velocity = v1nTag.add(v1tTag);
         second.velocity = v2nTag.add(v2tTag);
     
@@ -192,6 +210,7 @@ export class GameWorld {
 
     private handleCollisions(): void {
         for(let i = 0 ; i < this._balls.length ; i++ ){ 
+            
             this.resolveBallCollisionWithCushion(this._balls[i]);
 
             for(let j = i + 1 ; j < this._balls.length ; j++ ){
@@ -215,10 +234,12 @@ export class GameWorld {
 
     private isInsidePocket(position: Vector2): boolean {
         return tableConfig.pocketsPositions
-            .some((pocketPos: IVector2) => position.distFrom(new Vector2(pocketPos.x, pocketPos.y)) <= tableConfig.pocketRadius);
+            .some((pocketPos: Vector2) => position.distFrom(pocketPos) <= tableConfig.pocketRadius);
+
     }
 
     private resolveBallInPocket(ball: Ball): void {
+
         if (this.isInsidePocket(ball.position)) {
             ball.hide();
         }
@@ -230,173 +251,222 @@ export class GameWorld {
 
     private handleBallsInPockets(): void {
         this._balls.forEach((ball: Ball) => {
-            if(ball.visible) {
-                this.resolveBallInPocket(ball);
-                if(!ball.visible) {
-                    this._turnState.pocketedBalls.push(ball);
+            this.resolveBallInPocket(ball);
+            if (!ball.visible && !this._turnState.pocketedBalls.includes(ball)) {
+                Assets.playSound(sounds.paths.rail, 1);
+                if(!this.currentPlayer.color && this.isValidPlayerColor(ball.color)) {
+                    this.currentPlayer.color = ball.color;
+                    this.nextPlayer.color = ball.color === Color.yellow ? Color.red : Color.yellow;
                 }
+                this._turnState.pocketedBalls.push(ball);
             }
         });
     }
 
     private handleBallInHand(): void {
-        if(this._turnState.ballInHand) {
-            if(Mouse.isPressed(inputConfig.mousePlaceBallButton)) {
-                const position: Vector2 = Mouse.position;
-                if(this.isValidPosToPlaceCueBall(position)) {
-                    this.placeBallInHand(position);
-                }
-            }
+
+        if(Mouse.isPressed(inputConfig.mousePlaceBallButton) && this.isValidPosToPlaceCueBall(Mouse.position)) {
+            this.placeBallInHand(Mouse.position);
+        }
+        else {
+            this._stick.movable = false;
+            this._stick.visible = false;
+            this._cueBall.position = Mouse.position;
         }
     }
 
     private handleGameOver(): void {
-        if(this.isGameOver) {
-            this._stick.hide();
-            this._turnState.isValid = false;
+        if (this._turnState.isValid) {
+            this.currentPlayer.overallScore++;
         }
+        else {
+            this.nextPlayer.overallScore++;
+        }
+        this.initMatch();
     }
 
     private nextTurn(): void {
+
+        const foul = !this._turnState.isValid;
+
+        if (this.isGameOver) {
+            this.handleGameOver();
+            return;
+        }
+
+        if(!this._cueBall.visible){
+            this._cueBall.show(Vector2.copy(GameConfig.cueBallPosition));
+        }
+
+        if(foul || this._turnState.pocketedBalls.length === 0) {
+            this._currentPlayerIndex++;
+            this._currentPlayerIndex = this._currentPlayerIndex % this._players.length;
+        }
+
+        this._stick.show(this._cueBall.position);
+
         this._turnState = new State();
-        this._stick.hide();
+        this._turnState.ballInHand = foul;
 
-        if(this.isTurnValid) {
-            this.currentPlayer.matchScore++;
+        if (this.isAITurn()) {
+            AI.startSession(this);
         }
-        else {
-            this._turnState.ballInHand = true;
-        }
-
-        if(this.isGameOver) {
-            if(this.currentPlayer.matchScore === 8) {
-                this.currentPlayer.overallScore++;
-            }
-            else {
-                this.nextPlayer.overallScore++;
-            }
-        }
-
-        this._currentPlayerIndex = (this._currentPlayerIndex + 1) % this._players.length;
     }
 
     private drawCurrentPlayerLabel(): void {
-        const label = labelsConfig.currentPlayer;
+        
         Canvas2D.drawText(
-            label.text + (this._currentPlayerIndex + 1),
-            label.font,
-            label.color,
-            label.position,
-            label.alignment
-        );
+            labelsConfig.currentPlayer.text + (this._currentPlayerIndex + 1), 
+            labelsConfig.currentPlayer.font, 
+            labelsConfig.currentPlayer.color, 
+            labelsConfig.currentPlayer.position, 
+            labelsConfig.currentPlayer.alignment
+            );
     }
 
     private drawMatchScores(): void {
-        this._players.forEach((player: Player, index: number) => {
-            const position: Vector2 = new Vector2(matchScoreConfig.scoresPositions[index].x, matchScoreConfig.scoresPositions[index].y);
-            Canvas2D.drawText(
-                player.matchScore.toString(),
-                '50px Impact',
-                '#FFD700',
-                position
-            );
-        });
+        for(let i = 0 ; i < this._players.length ; i++){    
+            for(let j = 0 ; j < this._players[i].matchScore ; j++){
+                const scorePosition: Vector2 = Vector2.copy(matchScoreConfig.scoresPositions[i]).addToX(j * matchScoreConfig.unitMargin);
+                const scoreSprite: HTMLImageElement = this._players[i].color === Color.red ? Assets.getSprite(sprites.paths.redScore) : Assets.getSprite(sprites.paths.yellowScore);
+                Canvas2D.drawImage(scoreSprite, scorePosition);
+            }
+        }    
     }
 
     private drawOverallScores(): void {
-        this._players.forEach((player: Player, index: number) => {
-            const label = labelsConfig.overalScores[index];
+        for(let i = 0 ; i < this._players.length ; i++){ 
             Canvas2D.drawText(
-                player.overallScore.toString(),
-                label.font,
-                label.color,
-                label.position,
-                label.alignment
-            );
-        });
+                this._players[i].overallScore.toString(), 
+                labelsConfig.overalScores[i].font,
+                labelsConfig.overalScores[i].color,
+                labelsConfig.overalScores[i].position,
+                labelsConfig.overalScores[i].alignment
+                );   
+        }
     }
 
     private isInsideTableBoundaries(position: Vector2): boolean {
-        return position.x > tableConfig.cushionWidth + ballConfig.diameter / 2 &&
-               position.x < gameSize.x - tableConfig.cushionWidth - ballConfig.diameter / 2 &&
-               position.y > tableConfig.cushionWidth + ballConfig.diameter / 2 &&
-               position.y < gameSize.y - tableConfig.cushionWidth - ballConfig.diameter / 2;
+        let insideTable: boolean =  !this.isInsidePocket(position);
+        insideTable = insideTable && !this.isBallPosOutsideTopBorder(position);
+        insideTable = insideTable && !this.isBallPosOutsideLeftBorder(position);
+        insideTable = insideTable && !this.isBallPosOutsideRightBorder(position);
+        insideTable = insideTable && !this.isBallPosOutsideBottomBorder(position);
+
+        return insideTable;
     }
 
     private isAITurn(): boolean {
-        return aiConfig.on && this._currentPlayerIndex === aiConfig.playerIndex;
+        return AI.finishedSession && aiConfig.on && this._currentPlayerIndex === aiConfig.playerIndex;
     }
 
     //------Public Methods------//
 
     public initMatch(): void {
-        this._stick = new Stick(Vector2.zero);
-        this._cueBall = new Ball(new Vector2(GameConfig.cueBallPosition.x, GameConfig.cueBallPosition.y), Color.white);
-        this._8Ball = new Ball(new Vector2(GameConfig.eightBallPosition.x, GameConfig.eightBallPosition.y), Color.black);
+
+        const redBalls: Ball[] = GameConfig.redBallsPositions
+            .map((position: Vector2) => new Ball(Vector2.copy(position), Color.yellow));
+
+        const yellowBalls: Ball[] = GameConfig.yellowBallsPositions
+            .map((position: Vector2) => new Ball(Vector2.copy(position), Color.red));
+        
+        this._8Ball = new Ball(Vector2.copy(GameConfig.eightBallPosition), Color.black);
+
+        this._cueBall = new Ball(Vector2.copy(GameConfig.cueBallPosition), Color.white);
+
+        this._stick = new Stick(Vector2.copy(GameConfig.cueBallPosition));
+
         this._balls = [
-            this._cueBall,
+            ...redBalls, 
+            ... yellowBalls, 
             this._8Ball,
-            ...GameConfig.redBallsPositions.map((position: IVector2) => new Ball(new Vector2(position.x, position.y), Color.red)),
-            ...GameConfig.yellowBallsPositions.map((position: IVector2) => new Ball(new Vector2(position.x, position.y), Color.yellow))
+            this._cueBall, 
         ];
+
+        this._currentPlayerIndex = 0;
+
         this._players.forEach((player: Player) => {
             player.matchScore = 0;
             player.color = null;
         });
-        this._currentPlayerIndex = 0;
         this._turnState = new State();
         this._referee = new Referee();
-    }
 
-    public isValidPosToPlaceCueBall(position: Vector2): boolean {
-        return this.isInsideTableBoundaries(position) &&
-               !this._balls.some((ball: Ball) => 
-                   ball.visible && ball.position.distFrom(position) < ballConfig.diameter
-               );
-    }
-
-    public placeBallInHand(position: Vector2): void {
-        this._cueBall.show(position);
-        this._turnState.ballInHand = false;
-    }
-
-    public concludeTurn(): void {
-        if(!this.isBallsMoving) {
-            this._turnState.isValid = this._referee.isValidTurn(this.currentPlayer, this._turnState);
-            this.nextTurn();
+        if (this.isAITurn()) {
+            AI.startSession(this);
         }
     }
 
+    public isValidPosToPlaceCueBall(position: Vector2): boolean {
+        let noOverlap: boolean =  this._balls.every((ball: Ball) => {
+            return ball.color === Color.white || 
+                   ball.position.distFrom(position) > ballConfig.diameter;
+        })
+
+        return noOverlap && this.isInsideTableBoundaries(position);
+    }
+
+    public placeBallInHand(position: Vector2): void {
+        this._cueBall.position = position;
+        this._turnState.ballInHand = false;
+        this._stick.show(this._cueBall.position);
+    }
+
+    public concludeTurn(): void {
+
+        this._turnState.pocketedBalls.forEach((ball: Ball) => {
+            const ballIndex: number = this._balls.indexOf(ball);
+            if(ball.color != Color.white) {
+                this._balls.splice(ballIndex, 1);
+            }
+        });
+        
+        if(this.currentPlayer.color) {
+            this.currentPlayer.matchScore = 8 - this.getBallsByColor(this.currentPlayer.color).length - this.getBallsByColor(Color.black).length;
+        }
+
+        if(this.nextPlayer.color) {
+            this.nextPlayer.matchScore = 8 - this.getBallsByColor(this.nextPlayer.color).length - this.getBallsByColor(Color.black).length;
+        }
+
+        this._turnState.isValid = this._referee.isValidTurn(this.currentPlayer, this._turnState);
+    }
+
     public shootCueBall(power: number, rotation: number): void {
-        if(!this.isBallInHand) {
+        if(power > 0) {
+            this._stick.rotation = rotation;
             this._stick.shoot();
             this._cueBall.shoot(power, rotation);
+            this._stick.movable = false;
+            setTimeout(() => this._stick.hide(), GameConfig.timeoutToHideStickAfterShot);
         }
     }
 
     public update(): void {
-        if(!this.isGameOver) {
-            this.handleInput();
+
+        if(this.isBallInHand) {
             this.handleBallInHand();
-            this.handleCollisions();
-            this.handleBallsInPockets();
-            this.handleGameOver();
+            return;
+        }
 
-            this._balls.forEach((ball: Ball) => ball.update());
-            this._stick.update();
+        this.handleBallsInPockets();
+        this.handleCollisions();
+        this.handleInput();
+        this._stick.update();
+        this._balls.forEach((ball: Ball) => ball.update());
 
-            if(!this.isBallsMoving && !this.isBallInHand) {
-                this.concludeTurn();
-            }
+        if(!this.isBallsMoving && !this._stick.visible) {
+            this.concludeTurn();
+            this.nextTurn();
         }
     }
 
     public draw(): void {
         Canvas2D.drawImage(Assets.getSprite(sprites.paths.table));
-        this._balls.forEach((ball: Ball) => ball.draw());
-        this._stick.draw();
         this.drawCurrentPlayerLabel();
         this.drawMatchScores();
         this.drawOverallScores();
+        this._balls.forEach((ball: Ball) => ball.draw());
+        this._stick.draw();
     }
 }

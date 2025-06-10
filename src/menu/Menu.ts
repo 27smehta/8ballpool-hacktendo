@@ -7,14 +7,21 @@ import { GameConfig } from '../game.config';
 import { MenuActionType } from './menu-action-type';
 import { MenuLabel } from './menu-label';
 
+//------Configurations------//
+
 const cursorConfig: ICursorConfig = GameConfig.cursor;
 const sprites: IAssetsConfig = GameConfig.sprites;
 
 export class Menu {
+
+    //------Members------//
+
     private _labels: MenuLabel[];
     private _buttons: MenuButton[]
     private _active: boolean;
     private _subMenus: Menu[]
+
+    //------Properties------//
 
     public set active(value: boolean) {
         this._active = value;
@@ -24,30 +31,33 @@ export class Menu {
         return this._active;
     }
 
-    public init(actionsMap: Map<MenuActionType, IMenuCommand>, config: IMenuConfig): void {
-        this._buttons = config.buttons.map((button: IButton) => {
-            return new MenuButton(
-                    actionsMap.get(button.action),
-                    button.value,
-                    button.position, 
-                    button.sprite, 
-                    button.spriteOnHover,
-                );
-        });
+    public get buttons(): MenuButton[] {
+        return this._buttons;
+    }
 
-        this._labels = config.labels.map((label: ILabel) => {
-            return new MenuLabel(
-                    label.text, 
-                    label.position, 
-                    label.font, 
-                    label.color, 
-                    label.alignment
-                );
-        });
+    public get labels(): MenuLabel[] {
+        return this._labels;
+    }
 
-        this._subMenus = config.subMenus.map((menu: IMenuConfig) => {
+    public get subMenus(): Menu[] {
+        return this._subMenus;
+    }
+
+    constructor() {
+        this._labels = [];
+        this._buttons = [];
+        this._active = false;
+        this._subMenus = [];
+    }
+
+    //------Public Methods------//
+
+    public init(menuActionsMap: Map<MenuActionType, IMenuCommand>, menuConfig: IMenuConfig): void {
+        this._labels = menuConfig.labels.map(labelConfig => new MenuLabel(labelConfig));
+        this._buttons = menuConfig.buttons.map(buttonConfig => new MenuButton(buttonConfig, menuActionsMap));
+        this._subMenus = (menuConfig.subMenus || []).map(subMenuConfig => {
             const subMenu = new Menu();
-            subMenu.init(actionsMap, menu);
+            subMenu.init(menuActionsMap, subMenuConfig);
             return subMenu;
         });
     }
@@ -57,20 +67,14 @@ export class Menu {
     }
 
     public update(): void {
-        if(this._active) {
-            this._buttons.forEach((button: MenuButton) => button.update());
-        }
-
-        this._subMenus.forEach((menu: Menu) => menu.update());
+        this._buttons.forEach(button => button.handleInput());
     }
 
     public draw(): void {
-        if(this._active){
-            Canvas2D.changeCursor(cursorConfig.default);
-            Canvas2D.drawImage(Assets.getSprite(sprites.paths.menuBackground))
-            this._labels.forEach((label: MenuLabel) => label.draw());
-            this._buttons.forEach((button: MenuButton) => button.draw());
+        this._labels.forEach(label => label.draw());
+        this._buttons.forEach(button => button.draw());
+        if(this._subMenus.length > 0) {
+            this._subMenus.forEach(subMenu => subMenu.draw());
         }
-        this._subMenus.forEach((menu: Menu) => menu.draw());
     }
 }

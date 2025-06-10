@@ -1,20 +1,26 @@
-import { IBallConfig, IPhysicsConfig, IAssetsConfig } from './../Game.config.type';
-import { GameConfig } from '../Game.config';
-import { Canvas2D } from '../Canvas';
+import { IBallConfig, IPhysicsConfig, IAssetsConfig } from './../game.config.type';
+import { GameConfig } from '../game.config';
+import { Canvas2D } from '../canvas';
 import { Color } from '../common/color';
 import { Vector2 } from '../geom/vector2';
-import { Assets } from '../Assets';
+import { Assets } from '../assets';
 
 const physicsConfig: IPhysicsConfig = GameConfig.physics;
 const sprites: IAssetsConfig = GameConfig.sprites;
 const ballConfig: IBallConfig = GameConfig.ball;
 
 export class Ball {
+
+    //------Members------//
+
     private _sprite: HTMLImageElement;
     private _color: Color;
     private _velocity: Vector2 = Vector2.zero;
     private _moving: boolean = false;
     private _visible: boolean = true;
+
+
+    //------Properties------//
 
     public get position(): Vector2 {
         return Vector2.copy(this._position);
@@ -49,10 +55,14 @@ export class Ball {
         return this._visible;
     }
 
+    //------Constructor------//
+
     constructor(private _position: Vector2, color: Color) {
         this._color = color;
         this.resolveSprite(color);
     }
+
+    //------Private Methods------//
 
     private resolveSprite(color: Color) {
         switch(color) {
@@ -73,6 +83,8 @@ export class Ball {
                 break;
         }
     }
+
+    //------Public Methods------//
 
     public shoot(power: number, angle: number): void {
         this._velocity = new Vector2(power * Math.cos(angle), power * Math.sin(angle));

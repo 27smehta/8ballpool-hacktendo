@@ -8,6 +8,7 @@ import { Vector2 } from '../geom/vector2';
 import { mapRange } from '../common/helper';
 import { IAssetsConfig } from '../game.config.type';
 
+//------Configurations------//
 
 const inputConfig: IInputConfig = GameConfig.input;
 const stickConfig: IStickConfig = GameConfig.stick;
@@ -16,6 +17,7 @@ const sounds: IAssetsConfig = GameConfig.sounds;
 
 export class Stick {
 
+    //------Members------//
 
     private _sprite: HTMLImageElement = Assets.getSprite(sprites.paths.stick);
     private _rotation: number = 0;
@@ -24,6 +26,7 @@ export class Stick {
     private _movable: boolean = true;
     private _visible: boolean = true;
 
+    //------Properties------//
 
     public get position() : Vector2 {
         return Vector2.copy(this._position);
@@ -53,9 +56,11 @@ export class Stick {
         this._rotation = value;
     }
 
+    //------Constructor------//
 
     constructor(private _position: Vector2) {}
 
+    //------Private Methods------//
 
     private increasePower(): void {
         this._power += stickConfig.powerToAddPerFrame;
@@ -76,6 +81,7 @@ export class Stick {
     }
 
     private updatePower(): void {
+
         if (Keyboard.isDown(inputConfig.increaseShotPowerKey) && this.isLessThanMaxPower()) {
             this.increasePower();
         }
@@ -90,6 +96,7 @@ export class Stick {
         this._rotation = Math.atan2(opposite, adjacent);
     }
 
+    //------Public Methods------//
 
     public hide(): void {
         this._power = 0;
