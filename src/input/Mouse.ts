@@ -1,6 +1,6 @@
 import { ButtonState } from './ButtonState';
-import { Canvas2D } from './../Canvas';
-import { Vector2 } from './../geom/Vector2';
+import { Canvas2D } from '../Canvas';
+import { Vector2 } from '../geom/Vector2';
 
 class Mouse_Singleton {
     private _buttonStates: ButtonState[] = [];

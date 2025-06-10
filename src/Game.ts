@@ -168,10 +168,10 @@ export class Game {
         this._poolGame = new GameWorld(false);
     }
 
-    public executeMenuAction(action: MenuActionType, value?: number): void {
+    public executeMenuAction(action: MenuActionType): void {
         const command = this._menuActionsMap.get(action);
         if (command) {
-            command.execute(value);
+            command.execute();
         }
     }
 }
