@@ -3,18 +3,16 @@ import { GameConfig } from './game.config';
 import { Vector2 } from './geom/vector2';
 
 class Canvas2D_Singleton {
-
     //------Members------//
-
-    private _canvasContainer: HTMLElement;
-    private _canvas : HTMLCanvasElement;
-    private _context : CanvasRenderingContext2D;
-    private _scale: Vector2;
-    private _offset: Vector2;
     private static _instance: Canvas2D_Singleton | null = null;
+    private _canvasContainer: HTMLElement | null = null;
+    private _canvas: HTMLCanvasElement | null = null;
+    private _context: CanvasRenderingContext2D | null = null;
+    private _scale: Vector2 = new Vector2(1, 1);
+    private _offset: Vector2 = new Vector2(0, 0);
+    private _initialized: boolean = false;
 
     //------Properties------//
-    
     public get scaleX() {
         return this._scale.x;
     }
@@ -32,24 +30,41 @@ class Canvas2D_Singleton {
     }
 
     public get width() {
-        return this._canvas.width;
+        return this._canvas?.width ?? 0;
     }
 
     public get height() {
-        return this._canvas.height;
+        return this._canvas?.height ?? 0;
     }
 
     public get context() {
+        if (!this._context) {
+            throw new Error('Canvas context not initialized');
+        }
         return this._context;
     }
 
     public get canvas() {
+        if (!this._canvas) {
+            throw new Error('Canvas not initialized');
+        }
         return this._canvas;
     }
 
     //------Constructor------//
+    private constructor() {}
 
-    private constructor() {
+    //------Public Methods------//
+    public static getInstance(): Canvas2D_Singleton {
+        if (!Canvas2D_Singleton._instance) {
+            Canvas2D_Singleton._instance = new Canvas2D_Singleton();
+        }
+        return Canvas2D_Singleton._instance;
+    }
+
+    public async initialize(): Promise<void> {
+        if (this._initialized) return;
+
         const container = document.getElementById('canvasContainer');
         if (!container) {
             throw new Error('Canvas container element not found');
@@ -73,19 +88,12 @@ class Canvas2D_Singleton {
 
         // Initialize canvas size
         this.resizeCanvas();
-    }
-
-    //------Public Methods------//
-
-    public static getInstance(): Canvas2D_Singleton {
-        if (!Canvas2D_Singleton._instance) {
-            Canvas2D_Singleton._instance = new Canvas2D_Singleton();
-        }
-        return Canvas2D_Singleton._instance;
+        this._initialized = true;
     }
 
     public resizeCanvas(): void {
-        
+        if (!this._canvasContainer || !this._canvas) return;
+
         const originalCanvasWidth = GameConfig.gameSize.x;
         const originalCanvasHeight = GameConfig.gameSize.y;
         const widthToHeight: number = originalCanvasWidth / originalCanvasHeight;
@@ -117,17 +125,18 @@ class Canvas2D_Singleton {
         }
     }
 
-
-    public clear() : void {
+    public clear(): void {
+        if (!this._context || !this._canvas) return;
         this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
     }
 
     public drawImage(
-            sprite: HTMLImageElement,
-            position: IVector2 = { x: 0, y: 0 }, 
-            rotation: number = 0, 
-            origin: IVector2 = { x: 0, y: 0 }
-        ) {    
+        sprite: HTMLImageElement,
+        position: IVector2 = { x: 0, y: 0 }, 
+        rotation: number = 0, 
+        origin: IVector2 = { x: 0, y: 0 }
+    ) {    
+        if (!this._context) return;
         this._context.save();
         this._context.scale(this._scale.x, this._scale.y);
         this._context.translate(position.x, position.y);
@@ -136,8 +145,8 @@ class Canvas2D_Singleton {
         this._context.restore();
     }
 
-
-    public drawText(text: string, font:string, color: string, position: IVector2, textAlign: string = 'left'): void {
+    public drawText(text: string, font: string, color: string, position: IVector2, textAlign: string = 'left'): void {
+        if (!this._context) return;
         this._context.save();
         this._context.scale(this._scale.x, this._scale.y);
         this._context.fillStyle = color;
@@ -148,15 +157,13 @@ class Canvas2D_Singleton {
     }
 
     public changeCursor(cursor: string): void {
+        if (!this._canvas) return;
         this._canvas.style.cursor = cursor;
     }
 }
 
-// Initialize canvas after DOM is loaded
-let Canvas2D: Canvas2D_Singleton;
-document.addEventListener('DOMContentLoaded', () => {
-    Canvas2D = Canvas2D_Singleton.getInstance();
-    window.addEventListener('resize', () => Canvas2D.resizeCanvas());
-});
+// Create and export the singleton instance
+export const Canvas2D = Canvas2D_Singleton.getInstance();
 
-export { Canvas2D };
+// Add resize event listener
+window.addEventListener('resize', () => Canvas2D.resizeCanvas());

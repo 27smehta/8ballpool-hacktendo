@@ -13,7 +13,8 @@ import { GameWorld } from './game-objects/game-world';
 import { Keyboard } from './input/keyboard';
 import { Canvas2D } from './canvas';
 import { Mouse } from './input/mouse';
-import { IAssetsConfig, IInputConfig } from './game.config.type';
+import { IAssetsConfig, IInputConfig, IMenuConfig } from './game.config.type';
+import { gameInitializer } from './game-init';
 
 //------Configurations------//
 
@@ -21,9 +22,7 @@ const sprites: IAssetsConfig = GameConfig.sprites;
 const inputConfig: IInputConfig = GameConfig.input;
 
 export class Game {
-
-    //------Members------//
-
+    private static _instance: Game | null = null;
     private _menuActionsMap: Map<MenuActionType, IMenuCommand> = new Map();
     private _previousMenus: Menu[] = [];
     private _menu: Menu = new Menu();
@@ -32,7 +31,23 @@ export class Game {
     private _inGame: boolean = false;
     private _initialized: boolean = false;
 
-    //------Private Methods------//
+    private constructor() {}
+
+    public static getInstance(): Game {
+        if (!Game._instance) {
+            Game._instance = new Game();
+        }
+        return Game._instance;
+    }
+
+    public async init(): Promise<void> {
+        if (this._initialized) return;
+        await Canvas2D.initialize();
+        this.initMenuActions();
+        this._menu.init(this._menuActionsMap, GameConfig.mainMenu);
+        this._initialized = true;
+        this.gameLoop();
+    }
 
     private initMenuActions(): void {
         this._menuActionsMap = new Map<MenuActionType, IMenuCommand>();
@@ -43,38 +58,18 @@ export class Game {
         this._menuActionsMap.set(MenuActionType.GoToPreviousMenu, new GoToPreviousMenuCommand(this));
     }
 
-    private initMainMenu(): void {
-        this._menu.init(this._menuActionsMap, GameConfig.mainMenu);
-    }
-
-    private displayLoadingScreen(): Promise<void> {
-        return new Promise((resolve) => {
-            this._isLoading = true;
-            Canvas2D.clear();
-            Canvas2D.drawImage(
-                Assets.getSprite(sprites.paths.controls),
-                GameConfig.loadingScreenImagePosition
-                );
-            setTimeout(() => {
-                this._isLoading = false;
-                resolve();
-            }, GameConfig.loadingScreenTimeout);
-        });
-    }
-
     private handleInput(): void {
         if(this._inGame && Keyboard.isPressed(inputConfig.toggleMenuKey)) {
             if(this._menu.active) {
                 this._menu.active = false;
             }
             else {
-                this.initMainMenu();
                 this._menu.active = true;
             }
         }
     }
 
-    private update(): void {
+    private updateInternal(): void {
         if (!this._initialized || this._isLoading) return;
         this.handleInput();
         this._menu.active ? this._menu.update() : this._poolGame.update();
@@ -82,7 +77,7 @@ export class Game {
         Mouse.reset();
     }
 
-    private draw(): void {
+    private drawInternal(): void {
         if (!this._initialized || this._isLoading) return;
         if(AI.finishedSession){
             Canvas2D.clear();
@@ -91,36 +86,11 @@ export class Game {
     }
 
     private gameLoop(): void {
-        this.update();
-        this.draw();
+        this.updateInternal();
+        this.drawInternal();
         window.requestAnimationFrame(() => {
             this.gameLoop();
         });
-    }
-
-    //------Public Methods------//
-
-    public async init(): Promise<void> {
-        // Wait for Canvas to be initialized
-        await new Promise<void>((resolve) => {
-            const checkCanvas = () => {
-                if (Canvas2D) {
-                    resolve();
-                } else {
-                    setTimeout(checkCanvas, 100);
-                }
-            };
-            checkCanvas();
-        });
-
-        await Assets.loadGameAssets();
-
-        this.initMenuActions();
-        this.initMainMenu();
-        this._menu.active = true;
-        this._poolGame = new GameWorld();
-        this._initialized = true;
-        this.gameLoop();
     }
 
     public goToSubMenu(index: number): void {
@@ -158,10 +128,25 @@ export class Game {
             this._poolGame.initMatch();
         });
     }
+
+    private displayLoadingScreen(): Promise<void> {
+        return new Promise((resolve) => {
+            this._isLoading = true;
+            Canvas2D.clear();
+            Canvas2D.drawImage(
+                Assets.getSprite(sprites.paths.controls),
+                GameConfig.loadingScreenImagePosition
+                );
+            setTimeout(() => {
+                this._isLoading = false;
+                resolve();
+            }, GameConfig.loadingScreenTimeout);
+        });
+    }
 }
 
-// Initialize game after DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    const game = new Game();
-    game.init();
+// Initialize the game when the DOM is ready
+document.addEventListener('DOMContentLoaded', async () => {
+    const game = Game.getInstance();
+    await game.init();
 });
